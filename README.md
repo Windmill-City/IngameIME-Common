@@ -18,8 +18,8 @@ class CompositionState{
 class PreEditCallback
 
 class PreEditRect{
-    m_Top int32
     m_Left int32
+    m_Top int32
     m_Right int32
     m_Bottom int32
 }
@@ -55,11 +55,15 @@ class InputContext{
     setActivated(bool)
     getActivated() bool
 }
+
+class Locale{
+    m_Locale wstring
+    m_Name wstring
+}
 class InputProcessor{
     m_Type InputProcessorType
-    m_Name: wstring
-    m_Locale wstring
-    m_LocaleName wstring
+    m_Locale Locale
+    m_Name wstring
 
     setActivated()
 }
@@ -91,12 +95,13 @@ CandidateListCallback --> CandidateListContext
 
 CommitCallback ..|> ICallback
 
-Composition *-- PreEditCallback
-Composition *-- PreEditRectCallback
-Composition *-- CommitCallback
-Composition *-- CandidateListCallback
+Composition --|> PreEditCallback
+Composition --|> PreEditRectCallback
+Composition --|> CommitCallback
+Composition --|> CandidateListCallback
 
 InputProcessor *-- InputProcessorType
+InputProcessor --> Locale
 
 InputProcessorContext --> InputProcessor
 
