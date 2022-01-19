@@ -77,7 +77,7 @@ class InputProcessorContext{
 }
 class IngameIME{
     getActiveInputProcessor() InputProcessorContext
-    getInputProcessors() list<InputProcessor>
+    getInputProcessors() list_InputProcessor
 }
 
 InputContext *-- Composition
