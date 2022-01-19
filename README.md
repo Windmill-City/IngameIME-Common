@@ -3,4 +3,4 @@
 Common interface of IngameIME
 
 ## Class Diagram
-![Class Diagram](docs/ClassDiagram.png)
+![Class Diagram](docs/ClassDiagram.svg)
