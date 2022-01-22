@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Composotion.hpp"
+#include "Composition.hpp"
 #include <memory>
 
 namespace IngameIME {
     class InputContext {
       public:
-        std::shared_ptr<Composition> m_Composition;
+        const std::shared_ptr<Composition> m_Composition;
 
       public:
         virtual ~InputContext() = default;
@@ -25,5 +25,18 @@ namespace IngameIME {
          * @return false not activated
          */
         virtual bool getActivated() = 0;
+        /**
+         * @brief Set InputContext full screen state
+         *
+         * @param fullscreen if InputContext full screen
+         */
+        virtual void setFullScreen(bool fullscreen) = 0;
+        /**
+         * @brief Get if InputContext in full screen state
+         *
+         * @return true full screen mode
+         * @return false window mode
+         */
+        virtual bool getFullScreen() = 0;
     };
 }// namespace IngameIME
