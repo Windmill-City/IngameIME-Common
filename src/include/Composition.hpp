@@ -23,7 +23,7 @@ namespace IngameIME {
      * @brief Input Method position its Candidate Window near the PreEditRect
      *
      */
-    typedef ICallback<PreEditRect*> PreEditRectCallback;
+    typedef ICallback<PreEditRect&> PreEditRectCallback;
 
     /**
      * @brief Context of the PreEdit text
@@ -58,12 +58,12 @@ namespace IngameIME {
      * @brief PreEdit text callback, PreEditContext non-Null only when Composition::Update
      *
      */
-    typedef ICallback<CompositionState, PreEditContext> PreEditCallback;
+    typedef ICallback<const CompositionState, const PreEditContext> PreEditCallback;
     /**
      * @brief Receive the convert result of the preEdit text
      *
      */
-    typedef ICallback<std::wstring> CommitCallback;
+    typedef ICallback<const std::wstring> CommitCallback;
 
     struct CandidateListContext
     {
@@ -90,7 +90,7 @@ namespace IngameIME {
      * CandidateListContext non-Null only when CandidateList::Update
      *
      */
-    typedef ICallback<CandidateListState, CandidateListContext> CandidateListCallback;
+    typedef ICallback<const CandidateListState, const CandidateListContext> CandidateListCallback;
 
     /**
      * @brief Composition
