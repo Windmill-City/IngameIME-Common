@@ -4,9 +4,9 @@
 #include <list>
 
 namespace IngameIME {
-    class IngameIME {
+    class IngameIMECore {
       public:
-        virtual ~IngameIME() = default;
+        virtual ~IngameIMECore() = default;
 
       public:
         /**
