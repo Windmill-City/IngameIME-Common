@@ -5,9 +5,9 @@ class PreEditContext{
     m_Content wstring
 }
 class CompositionState{
-    CompositionStart
-    CompositionUpdate
-    CompositionEnd
+    Start
+    Update
+    End
 }
 class PreEditCallback
 
@@ -27,9 +27,9 @@ class CandidateListContext{
     setFinalize()
 }
 class CandidateListState{
-    CandidateListStart
-    CandidateListUpdate
-    CandidateListEnd
+    Start
+    Update
+    End
 }
 class CandidateListCallback
 
@@ -48,6 +48,8 @@ class InputContext{
 
     setActivated(bool)
     getActivated() bool
+    setFullScreen(bool)
+    getFullScreen() bool
 }
 
 class Locale{
