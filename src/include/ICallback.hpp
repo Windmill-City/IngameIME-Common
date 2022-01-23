@@ -15,7 +15,7 @@ namespace IngameIME {
          * @param callback callback to set
          * @return std::function<void(Args...)> previous callback
          */
-        std::function<void(Args...)> setCallback(std::function<void(Args...)> callback)
+        std::function<void(Args...)> setCallback(const std::function<void(Args...)> callback)
         {
             auto oldCallback = m_Callback;
             m_Callback       = callback;
@@ -27,7 +27,7 @@ namespace IngameIME {
          *
          * @param args args pass to callback
          */
-        void runCallback(Args... args)
+        void runCallback(const Args... args)
         {
             if (m_Callback) m_Callback(std::forward(args)...);
         }

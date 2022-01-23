@@ -24,7 +24,7 @@ namespace IngameIME {
          * @return true activated
          * @return false not activated
          */
-        virtual bool getActivated() = 0;
+        virtual bool getActivated() const = 0;
         /**
          * @brief Set InputContext full screen state
          *
@@ -37,6 +37,6 @@ namespace IngameIME {
          * @return true full screen mode
          * @return false window mode
          */
-        virtual bool getFullScreen() = 0;
+        virtual bool getFullScreen() const = 0;
     };
 }// namespace IngameIME

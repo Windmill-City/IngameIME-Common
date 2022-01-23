@@ -4,9 +4,9 @@
 #include <list>
 
 namespace IngameIME {
-    class IngameIMECore {
+    class Global {
       public:
-        virtual ~IngameIMECore() = default;
+        virtual ~Global() = default;
 
       public:
         /**
@@ -14,12 +14,12 @@ namespace IngameIME {
          *
          * @return std::shared_ptr<InputProcessor>
          */
-        virtual std::shared_ptr<InputProcessor> getActiveInputProcessor() = 0;
+        virtual std::shared_ptr<InputProcessor> getActiveInputProcessor() const = 0;
         /**
          * @brief Get system availiable InputProcessor
          *
          * @return std::list<std::shared_ptr<InputProcessor>>
          */
-        virtual std::list<std::shared_ptr<InputProcessor>> getInputProcessors() = 0;
+        virtual std::list<std::shared_ptr<InputProcessor>> getInputProcessors() const = 0;
     };
 }// namespace IngameIME
