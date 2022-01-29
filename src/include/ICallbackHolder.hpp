@@ -17,8 +17,8 @@ namespace IngameIME {
          */
         std::function<void(Args...)> setCallback(const std::function<void(Args...)> callback)
         {
-            auto oldCallback = m_Callback;
-            m_Callback       = callback;
+            auto oldCallback = this->callback;
+            this->callback       = callback;
             return oldCallback;
         }
 
@@ -29,7 +29,7 @@ namespace IngameIME {
          */
         void runCallback(const Args... args)
         {
-            if (m_Callback) m_Callback(std::forward(args)...);
+            if (callback) callback(std::forward(args)...);
         }
     };
 }// namespace IngameIME
