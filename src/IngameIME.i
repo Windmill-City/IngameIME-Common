@@ -31,7 +31,7 @@ namespace std {
 
 %define %ICallbackHolder(Name, ...)
 %std_function(Name, void, __VA_ARGS__);
-%interface_custom("", "I%s", IngameIME::ICallbackHolder<__VA_ARGS__>);
+%interface_custom("%sProxy", "I%s", IngameIME::ICallbackHolder<__VA_ARGS__>);
 namespace IngameIME {
   %rename(Name##Holder) ICallbackHolder<__VA_ARGS__>;
   %rename(set##Name) ICallbackHolder<__VA_ARGS__>::setCallback;
@@ -43,7 +43,7 @@ namespace IngameIME {
      * @param callback callback to set, nullable
      * @return previous callback, nullable
      */
-    std::function<void(__VA_ARGS__)> setCallback(std::function<void(__VA_ARGS__)> callback) = 0;
+    std::function<void(__VA_ARGS__)> setCallback(std::function<void(__VA_ARGS__)> callback);
   };
 }
 %enddef
