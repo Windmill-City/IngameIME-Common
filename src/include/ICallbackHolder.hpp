@@ -4,9 +4,9 @@
 
 namespace IngameIME {
     template <typename... Args>
-    class ICallback {
+    class ICallbackHolder {
       private:
-        std::function<void(Args...)> m_Callback;
+        std::function<void(Args...)> callback;
 
       public:
         /**

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ICallbackHolder.hpp"
 #include <list>
 #include <memory>
 #include <string>
@@ -13,27 +14,27 @@ namespace IngameIME {
          * @brief Locale identifier
          *
          */
-        std::wstring m_Locale;
+        std::wstring locale;
         /**
          * @brief Localized-Name of the Locale
          *
          */
-        std::wstring m_Name;
+        std::wstring name;
     };
 
     class InputProcessor {
       public:
-        InputProcessorType m_Type;
+        InputProcessorType type;
         /**
          * @brief Locale of the InputProcessor
          *
          */
-        std::shared_ptr<Locale> m_Locale;
+        std::shared_ptr<Locale> locale;
         /**
          * @brief Localized-Name of the InputProcessor
          *
          */
-        std::wstring m_Name;
+        std::wstring name;
 
       public:
         virtual ~InputProcessor() = default;
@@ -52,11 +53,26 @@ namespace IngameIME {
          * @brief Current active InputProcessor
          *
          */
-        std::shared_ptr<InputProcessor> m_InputProcessor;
+        std::shared_ptr<InputProcessor> inputProcessor;
         /**
          * @brief InputModes of the InputProcessor
          *
          */
-        std::list<std::wstring> m_InputModes;
+        std::list<std::wstring> inputModes;
     };
+
+    enum class InputProcessorState {
+        /**
+         * @brief Only InputMode has changed
+         *
+         */
+        InputModeUpdate,
+        /**
+         * @brief Both InputProcessor and InputMode has changed
+         *
+         */
+        FullUpdate
+    };
+
+    typedef ICallbackHolder<const InputProcessorState, const InputProcessorContext&> InputProcessorCallbackHolder;
 }// namespace IngameIME

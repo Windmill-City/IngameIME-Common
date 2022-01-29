@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ICallback.hpp"
+#include "ICallbackHolder.hpp"
 #include <list>
 #include <string>
 
@@ -13,17 +13,17 @@ namespace IngameIME {
      */
     struct PreEditRect
     {
-        int32_t m_Left;
-        int32_t m_Top;
-        int32_t m_Right;
-        int32_t m_Bottom;
+        int32_t left;
+        int32_t top;
+        int32_t right;
+        int32_t bottom;
     };
 
     /**
      * @brief Input Method position its Candidate Window near the PreEditRect
      *
      */
-    typedef ICallback<PreEditRect&> PreEditRectCallback;
+    typedef ICallbackHolder<PreEditRect&> PreEditRectCallbackHolder;
 
     /**
      * @brief Context of the PreEdit text
@@ -35,17 +35,17 @@ namespace IngameIME {
          * @brief Start index of the selection(inclusive)
          *
          */
-        int32_t m_SelStart;
+        int32_t selStart;
         /**
          * @brief End index of the selection(exclusive)
          *
          */
-        int32_t m_SetEnd;
+        int32_t selEnd;
         /**
          * @brief PreEdit text
          *
          */
-        std::wstring m_Content;
+        std::wstring content;
     };
 
     /**
@@ -58,12 +58,12 @@ namespace IngameIME {
      * @brief PreEdit text callback, PreEditContext non-Null only when Composition::Update
      *
      */
-    typedef ICallback<const CompositionState, const PreEditContext> PreEditCallback;
+    typedef ICallbackHolder<const CompositionState, const PreEditContext*> PreEditCallbackHolder;
     /**
      * @brief Receive the convert result of the preEdit text
      *
      */
-    typedef ICallback<const std::wstring> CommitCallback;
+    typedef ICallbackHolder<const std::wstring> CommitCallbackHolder;
 
     struct CandidateListContext
     {
@@ -71,12 +71,12 @@ namespace IngameIME {
          * @brief Current selected Candidate
          *
          */
-        int32_t m_Selection;
+        int32_t selection;
         /**
          * @brief Candidate strings
          *
          */
-        std::list<std::wstring> m_Candidates;
+        std::list<std::wstring> candidates;
     };
 
     /**
@@ -90,16 +90,16 @@ namespace IngameIME {
      * CandidateListContext non-Null only when CandidateList::Update
      *
      */
-    typedef ICallback<const CandidateListState, const CandidateListContext> CandidateListCallback;
+    typedef ICallbackHolder<const CandidateListState, const CandidateListContext*> CandidateListCallbackHolder;
 
     /**
      * @brief Composition
      *
      */
-    class Composition : public PreEditCallback,
-                        public PreEditRectCallback,
-                        public CommitCallback,
-                        public CandidateListCallback {
+    class Composition : public PreEditCallbackHolder,
+                        public PreEditRectCallbackHolder,
+                        public CommitCallbackHolder,
+                        public CandidateListCallbackHolder {
       public:
         virtual ~Composition() = default;
 
