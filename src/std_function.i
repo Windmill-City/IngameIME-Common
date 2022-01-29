@@ -96,7 +96,7 @@ namespace std {
     // Director
     %extend {
       function<Ret(__VA_ARGS__)>(A##Name& in) {
-        return new std::function<Ret(__VA_ARGS__)>([=](FOR_EACH(lvalref,__VA_ARGS__)){
+        return new std::function<Ret(__VA_ARGS__)>([&](FOR_EACH(lvalref,__VA_ARGS__)){
               return in.call(FOR_EACH(forward,__VA_ARGS__));
         });
       }
@@ -177,8 +177,8 @@ namespace std {
     // Director
     %extend {
       function<Ret(__VA_ARGS__)>(A##Name& in) {
-        return new std::function<Ret(__VA_ARGS__)>([=](FOR_EACH(lvalref,__VA_ARGS__)){
-              return in.call(FOR_EACH(forward,__VA_ARGS__));
+        return new std::function<Ret(__VA_ARGS__)>([&](auto&& ...param){
+          return in.call(std::forward<decltype(param)>(param)...);
         });
       }
     }
