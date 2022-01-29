@@ -40,7 +40,9 @@ public:
    * @param callback callback to set, nullable
    * @return previous callback, nullable
    */
-  std::function<void(__VA_ARGS__)> setCallback(std::function<void(__VA_ARGS__)> callback);
+  std::function<void(__VA_ARGS__)> setCallback(std::function<void(__VA_ARGS__)> callback) {
+    return $self->IngameIME::Name##Holder::setCallback(callback);
+  }
 };
 %enddef
 
