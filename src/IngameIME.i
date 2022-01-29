@@ -29,35 +29,26 @@ namespace std {
 %include "std_function.i"
 %include <swiginterface.i>
 
-%define %ICallbackHolder(Name, ...)
+%define %ICallbackHolder(Name, Class, ...)
 %std_function(Name, void, __VA_ARGS__);
-%interface_custom("%sProxy", "I%s", IngameIME::ICallbackHolder<__VA_ARGS__>);
-namespace IngameIME {
-  %rename(Name##Holder) ICallbackHolder<__VA_ARGS__>;
-  %rename(set##Name) ICallbackHolder<__VA_ARGS__>::setCallback;
-  class ICallbackHolder<__VA_ARGS__> {
-  public:
-    /**
-     * @brief Set callback
-     *
-     * @param callback callback to set, nullable
-     * @return previous callback, nullable
-     */
-    std::function<void(__VA_ARGS__)> setCallback(std::function<void(__VA_ARGS__)> callback);
-  };
-}
+%warnfilter(401) Class;
+%extend Class {
+public:
+  /**
+   * @brief Set callback
+   *
+   * @param callback callback to set, nullable
+   * @return previous callback, nullable
+   */
+  std::function<void(__VA_ARGS__)> setCallback(std::function<void(__VA_ARGS__)> callback);
+};
 %enddef
 
-%define %ICallbackHolder_shared_ptr(Name, ...)
-%shared_ptr(IngameIME::ICallbackHolder<__VA_ARGS__>);
-%ICallbackHolder(Name, __VA_ARGS__);
-%enddef
-
-%ICallbackHolder_shared_ptr(PreEditRectCallback, IngameIME::PreEditRect&);
-%ICallbackHolder_shared_ptr(PreEditCallback, const IngameIME::CompositionState, const IngameIME::PreEditContext*);
-%ICallbackHolder_shared_ptr(CommitCallback, const std::wstring);
-%ICallbackHolder_shared_ptr(CandidateListCallback, const IngameIME::CandidateListState, const IngameIME::CandidateListContext*)
-%ICallbackHolder(InputProcessorCallback, const IngameIME::InputProcessorState, const IngameIME::InputProcessorContext&);
+%ICallbackHolder(PreEditRectCallback, IngameIME::Composition, IngameIME::PreEditRect&);
+%ICallbackHolder(PreEditCallback, IngameIME::Composition, const IngameIME::CompositionState, const IngameIME::PreEditContext*);
+%ICallbackHolder(CommitCallback, IngameIME::Composition, const std::wstring);
+%ICallbackHolder(CandidateListCallback, IngameIME::Composition, const IngameIME::CandidateListState, const IngameIME::CandidateListContext*)
+%ICallbackHolder(InputProcessorCallback, IngameIME::Global, const IngameIME::InputProcessorState, const IngameIME::InputProcessorContext&);
 
 %include "Composition.hpp"
 %include "InputContext.hpp"

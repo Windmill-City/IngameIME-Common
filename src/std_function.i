@@ -47,6 +47,11 @@
 %}
 
 /**
+ * @brief Should extend the director class but not the proxy class
+ */
+%typemap(javaclassmodifiers) std::function<Ret(__VA_ARGS__)> "public final class";
+
+/**
  * @brief Function pointer from java side maybe null
  */
 %typemap(in) std::function<Ret(__VA_ARGS__)> ($&1_type argp)
@@ -78,14 +83,23 @@
 
 %rename(Name) std::function<Ret(__VA_ARGS__)>;
 %rename(call) std::function<Ret(__VA_ARGS__)>::operator();
-
 namespace std {
+  %nodefaultctor;
   struct function<Ret(__VA_ARGS__)> {
     // Copy constructor
     function<Ret(__VA_ARGS__)>(const std::function<Ret(__VA_ARGS__)>&);
 
     // Call operator
     Ret operator()(__VA_ARGS__) const;
+
+    // Director
+    %extend {
+      function<Ret(__VA_ARGS__)>(A##Name& in) {
+        return new std::function<Ret(__VA_ARGS__)>([=](FOR_EACH(lvalref,__VA_ARGS__)){
+              return in->call(FOR_EACH(forward,__VA_ARGS__));
+        });
+      }
+    }
   };
 }
 %enddef
