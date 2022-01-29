@@ -82,6 +82,7 @@
   }
 %}
 
+%feature("novaluewrapper") std::function<Ret(__VA_ARGS__)>;
 %rename(Name) std::function<Ret(__VA_ARGS__)>;
 %rename(call) std::function<Ret(__VA_ARGS__)>::operator();
 namespace std {
@@ -163,6 +164,7 @@ namespace std {
   }
 %}
 
+%feature("novaluewrapper") std::function<Ret(__VA_ARGS__)>;
 %rename(Name) std::function<Ret(__VA_ARGS__)>;
 %rename(call) std::function<Ret(__VA_ARGS__)>::operator();
 namespace std {
