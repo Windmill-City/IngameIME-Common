@@ -1,7 +1,7 @@
 %module(directors="1") IngameIME
 
 #ifndef __cplusplus
-  #error "-c++ must be specified to process IngameIME.i"
+  #error "-c++ must be specified in command line argument to process IngameIME.i"
 #endif
 
 %{
@@ -30,7 +30,7 @@ namespace std {
 %include <swiginterface.i>
 
 %define %ICallbackHolder(Name, ...)
-%std_function(F##Name, void, __VA_ARGS__);
+%std_function(Name, void, __VA_ARGS__);
 %interface_custom("", "I%s", IngameIME::ICallbackHolder<__VA_ARGS__>);
 namespace IngameIME {
   %rename(Name##Holder) ICallbackHolder<__VA_ARGS__>;
