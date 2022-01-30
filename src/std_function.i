@@ -7,25 +7,6 @@
   #endif
 %}
 
-// These are the things we actually use
-#define param(num,type) $typemap(jstype,type) arg ## num
-#define unpack(num,type) arg##num
-#define lvalref(num,type) type&& arg##num
-#define forward(num,type) std::forward<type>(arg##num)
-
-// This is the mechanics
-#define FE_0(...)
-#define FE_1(action,a1) action(0,a1)
-#define FE_2(action,a1,a2) action(0,a1), action(1,a2)
-#define FE_3(action,a1,a2,a3) action(0,a1), action(1,a2), action(2,a3)
-#define FE_4(action,a1,a2,a3,a4) action(0,a1), action(1,a2), action(2,a3), action(3,a4)
-#define FE_5(action,a1,a2,a3,a4,a5) action(0,a1), action(1,a2), action(2,a3), action(3,a4), action(4,a5)
-
-#define GET_MACRO(_1,_2,_3,_4,_5,NAME,...) NAME
-%define FOR_EACH(action,...) 
-  GET_MACRO(__VA_ARGS__, FE_5, FE_4, FE_3, FE_2, FE_1, FE_0)(action,__VA_ARGS__)
-%enddef
-
 %define %std_function(Name, Ret, ...)
 
 %feature("director") A##Name;
