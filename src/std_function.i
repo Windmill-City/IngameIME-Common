@@ -26,15 +26,27 @@
   GET_MACRO(__VA_ARGS__, FE_5, FE_4, FE_3, FE_2, FE_1, FE_0)(action,__VA_ARGS__)
 %enddef
 
-#ifdef SWIGJAVA
-
 %define %std_function(Name, Ret, ...)
 
 %feature("director") A##Name;
+#if defined(SWIGJAVA)
+
 %typemap(javaclassmodifiers) A##Name "public abstract class";
 
 %javamethodmodifiers A##Name::call "protected abstract";
 %typemap(javaout) Ret A##Name::call ";" // Suppress the body of the abstract method
+
+#elif defined(SWIGCSHARP)
+
+%typemap(csmodifiers) A##Name "public abstract class";
+
+%warnfilter(844) A##Name;
+%csmethodmodifiers A##Name::call "protected abstract";
+%typemap(csout) Ret A##Name::call ";" // Suppress the body of the abstract method
+
+#else
+  #warning "std_function.i not implemented for target language"
+#endif
 
 %inline %{
   struct A##Name {
@@ -47,6 +59,8 @@
     virtual Ret call(__VA_ARGS__) = 0;
   };
 %}
+
+#if defined(SWIGJAVA)
 
 /**
  * @brief Should extend the director class but not the proxy class
@@ -82,52 +96,7 @@
   }
 %}
 
-%feature("novaluewrapper") std::function<Ret(__VA_ARGS__)>;
-%rename(Name) std::function<Ret(__VA_ARGS__)>;
-%rename(call) std::function<Ret(__VA_ARGS__)>::operator();
-namespace std {
-  %nodefaultctor;
-  struct function<Ret(__VA_ARGS__)> {
-    // Copy constructor
-    function<Ret(__VA_ARGS__)>(const std::function<Ret(__VA_ARGS__)>&);
-
-    // Call operator
-    Ret operator()(__VA_ARGS__) const;
-
-    // Director
-    %extend {
-      function<Ret(__VA_ARGS__)>(A##Name& in) {
-        return new std::function<Ret(__VA_ARGS__)>([&](FOR_EACH(lvalref,__VA_ARGS__)){
-              return in.call(FOR_EACH(forward,__VA_ARGS__));
-        });
-      }
-    }
-  };
-}
-%enddef
-
-#elif SWIGCSHARP
-
-%define %std_function(Name, Ret, ...)
-
-%feature("director") A##Name;
-%typemap(csmodifiers) A##Name "public abstract class";
-
-%warnfilter(844) A##Name;
-%csmethodmodifiers A##Name::call "protected abstract";
-%typemap(csout) Ret A##Name::call ";" // Suppress the body of the abstract method
-
-%inline %{
-  struct A##Name {
-    virtual ~A##Name() {}
-    /**
-     * @brief Run the callback
-     *
-     * @return Ret
-     */
-    virtual Ret call(__VA_ARGS__) = 0;
-  };
-%}
+#elif defined(SWIGCSHARP)
 
 /**
  * @brief Should extend the director class but not the proxy class
@@ -164,6 +133,10 @@ namespace std {
   }
 %}
 
+#else
+  #warning "std_function.i not implemented for target language"
+#endif
+
 %feature("novaluewrapper") std::function<Ret(__VA_ARGS__)>;
 %rename(Name) std::function<Ret(__VA_ARGS__)>;
 %rename(call) std::function<Ret(__VA_ARGS__)>::operator();
@@ -187,7 +160,3 @@ namespace std {
   };
 }
 %enddef
-
-#else
-  #error "std_function.i not implemented for target language"
-#endif
