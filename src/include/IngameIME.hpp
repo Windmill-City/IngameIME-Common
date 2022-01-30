@@ -7,6 +7,8 @@
 namespace IngameIME {
     class Global : public InputProcessorCallbackHolder {
       public:
+        static const Global& Instance;
+      public:
         virtual ~Global() = default;
 
       public:
@@ -29,5 +31,4 @@ namespace IngameIME {
          */
         virtual std::shared_ptr<InputContext> getInputContext(...);
     };
-    const Global& global;
 }// namespace IngameIME
