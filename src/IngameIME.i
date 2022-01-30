@@ -19,7 +19,7 @@
 %shared_ptr(IngameIME::InputContext)
 
 %immutable;
-extern IngameIME::Global& IngameIME::global;
+extern IngameIME::Global& IngameIME::Global::Instance;
 
 namespace std {
   %template(Strings) list<wstring>;
@@ -27,7 +27,6 @@ namespace std {
 }
 
 %include "std_function.i"
-%include <swiginterface.i>
 
 %define %ICallbackHolder(Name, Class, ...)
 %std_function(Name, void, __VA_ARGS__);
