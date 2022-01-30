@@ -25,6 +25,8 @@
 %csmethodmodifiers A##Name::call "protected abstract";
 %typemap(csout) Ret A##Name::call ";" // Suppress the body of the abstract method
 
+#elif defined(SWIGPYTHON)
+// Nothing here
 #else
   #warning "std_function.i not implemented for target language"
 #endif
@@ -114,13 +116,53 @@
   }
 %}
 
+#elif defined(SWIGPYTHON)
+
+/**
+ * @brief Function pointer from python side maybe None
+ */
+%typemap(in) std::function<Ret(__VA_ARGS__)> (void *argp, int res = 0) {
+  int newmem = 0;
+  res = SWIG_ConvertPtrAndOwn($input, &argp, $descriptor(std::function<Ret(__VA_ARGS__)> *), %convertptr_flags, &newmem);
+  if (!SWIG_IsOK(res)) {
+    %argument_fail(res, "$type", $symname, $argnum);
+  }
+  if (argp) $1 = *(%reinterpret_cast(argp, $&ltype));
+  if (newmem & SWIG_CAST_NEW_MEMORY) delete %reinterpret_cast(argp, $&ltype);
+}
+/**
+ * @brief If the wrapped function pointer is null, just return None to python side
+ */
+%typemap(out) std::function<Ret(__VA_ARGS__)> {
+  std::function<Ret(__VA_ARGS__)> *funcresult = $1 ? new std::function<Ret(__VA_ARGS__)>($1) : 0;
+  %set_output(SWIG_NewPointerObj(%as_voidptr(funcresult), $descriptor(std::function<Ret(__VA_ARGS__)> *), SWIG_POINTER_OWN));
+}
+%typemap(varout) std::function<Ret(__VA_ARGS__)> {
+  std::function<Ret(__VA_ARGS__)> funcresult = $1 ? new std::function<Ret(__VA_ARGS__)>($1) : 0;
+  %set_varoutput(SWIG_NewPointerObj(%as_voidptr(funcresult), $descriptor(std::function<Ret(__VA_ARGS__)> *), SWIG_POINTER_OWN));
+}
+
+/**
+ * @brief Typecheck for overloading
+ */
+%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER, noblock=1) std::function<Ret(__VA_ARGS__)> {
+  int res = SWIG_ConvertPtr($input, 0, $descriptor(std::function<Ret(__VA_ARGS__)> *), 0);
+  $1 = SWIG_CheckState(res);
+}
+
 #else
   #warning "std_function.i not implemented for target language"
 #endif
 
 %feature("novaluewrapper") std::function<Ret(__VA_ARGS__)>;
 %rename(Name) std::function<Ret(__VA_ARGS__)>;
+
+#if defined(SWIGPYTHON)
+%rename(__call__) std::function<Ret(__VA_ARGS__)>::operator();
+#else
 %rename(call) std::function<Ret(__VA_ARGS__)>::operator();
+#endif
+
 namespace std {
   %nodefaultctor;
   struct function<Ret(__VA_ARGS__)> {

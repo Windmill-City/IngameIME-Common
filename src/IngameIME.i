@@ -38,6 +38,7 @@ public:
    *
    * @param callback callback to set, nullable
    * @return previous callback, nullable
+   * @note Extend [A Name] and call Name::ctor with [A Name] to get callback on target language side
    */
   std::function<void(__VA_ARGS__)> setCallback(std::function<void(__VA_ARGS__)> callback) {
     return $self->IngameIME::Name##Holder::setCallback(callback);
