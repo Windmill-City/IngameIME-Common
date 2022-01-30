@@ -1,8 +1,8 @@
 classDiagram
 class PreEditContext{
-    m_SelStart int32
-    m_SelEnd int32
-    m_Content wstring
+    selStart int32
+    selEnd int32
+    content wstring
 }
 class CompositionState{
     Start
@@ -12,16 +12,16 @@ class CompositionState{
 class PreEditCallback
 
 class PreEditRect{
-    m_Left int32
-    m_Top int32
-    m_Right int32
-    m_Bottom int32
+    left int32
+    top int32
+    right int32
+    bottom int32
 }
 class PreEditRectCallback
 
 class CandidateListContext{
-    m_Selection int32
-    m_Candidates list_wstring
+    selection int32
+    candidates list_wstring
 
     setSelection(int32)
     setFinalize()
@@ -36,7 +36,7 @@ class CandidateListCallback
 class CommitCallback
 
 class ICallback{
-    m_Callback functional_F
+    callback functional_F
     setCallback(functional_F)
     runCallback(T...)
 }
@@ -44,7 +44,7 @@ class Composition{
     terminate()
 }
 class InputContext{
-    m_Composition Composition
+    composition Composition
 
     setActivated(bool)
     getActivated() bool
@@ -53,13 +53,13 @@ class InputContext{
 }
 
 class Locale{
-    m_Locale wstring
-    m_Name wstring
+    locale wstring
+    name wstring
 }
 class InputProcessor{
-    m_Type InputProcessorType
-    m_Locale Locale
-    m_Name wstring
+    type InputProcessorType
+    locale Locale
+    name wstring
 
     setActivated()
 }
@@ -67,13 +67,18 @@ class InputProcessorType{
     KeyboardLayout
     TextService
 }
-class InputProcessorContext{
-    m_InputProcessor InputProcessor
-    m_InputModes list_wstring
+class InputProcessorState{
+    InputModeUpdate
+    FullUpdate
 }
-class IngameIME{
+class InputProcessorContext{
+    inputProcessor InputProcessor
+    inputModes list_wstring
+}
+class Global{
     getActiveInputProcessor() InputProcessorContext
     getInputProcessors() list_InputProcessor
+    getInputContext(...) InputContext
 }
 
 InputContext *-- Composition
@@ -96,10 +101,15 @@ Composition --|> PreEditRectCallback
 Composition --|> CommitCallback
 Composition --|> CandidateListCallback
 
+InputProcessorCallback --> InputProcessorState
+InputProcessorCallback --> InputProcessorContext
+InputProcessorCallback ..|> ICallback
+
 InputProcessor *-- InputProcessorType
 InputProcessor --> Locale
 
 InputProcessorContext --> InputProcessor
 
-IngameIME --> InputProcessorContext
-IngameIME --> InputProcessor
+Global --> InputProcessorContext
+Global --> InputProcessor
+Global --|> InputProcessorCallback
