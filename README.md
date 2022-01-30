@@ -9,10 +9,10 @@ InputContext::setActivated(false)
 ```
 To direct KeyEvent to the TextService
 
-KeyboardLayout **always** handles KeyEvent whatever InputContext is activated or not
 ```c++
 InputContext::setActivated(true)
 ```
+KeyboardLayout **always** handles KeyEvent whatever InputContext is activated or not
 
 ## InputModes
 For TextServices in Asia there are following InputModes available:
