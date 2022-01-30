@@ -18,7 +18,11 @@
 %exception {
   try {
     $action
-  } catch (const std::exception& e) {
+  }
+  catch (const std::bad_alloc& e) {
+    SWIG_exception(SWIG_MemoryError, e.what());
+  }
+  catch (const std::exception& e) {
     SWIG_exception(SWIG_RuntimeError, e.what());
   }
 }
