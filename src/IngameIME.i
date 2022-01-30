@@ -13,6 +13,16 @@
 %include <std_shared_ptr.i>
 %include <std_list.i>
 
+%include "exception.i"
+
+%exception {
+  try {
+    $action
+  } catch (const std::exception& e) {
+    SWIG_exception(SWIG_RuntimeError, e.what());
+  }
+}
+
 %shared_ptr(IngameIME::Locale)
 %shared_ptr(IngameIME::InputProcessor)
 %shared_ptr(IngameIME::Composition)
