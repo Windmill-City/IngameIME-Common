@@ -74,5 +74,5 @@ namespace IngameIME {
         FullUpdate
     };
 
-    typedef ICallbackHolder<const InputProcessorState, const InputProcessorContext&> InputProcessorCallbackHolder;
+    using InputProcessorCallbackHolder = ICallbackHolder<const InputProcessorState, const InputProcessorContext&>;
 }// namespace IngameIME
