@@ -27,9 +27,9 @@ namespace IngameIME {
          *
          * @param args args pass to callback
          */
-        void runCallback(const Args... args)
+        void runCallback(Args... args)
         {
-            if (callback) callback(std::forward(args)...);
+            if (callback) callback(args...);
         }
     };
 }// namespace IngameIME
