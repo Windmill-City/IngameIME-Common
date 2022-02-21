@@ -6,7 +6,7 @@
 namespace IngameIME {
     class InputContext {
       public:
-        const std::shared_ptr<Composition> m_Composition;
+        const std::shared_ptr<Composition> comp;
 
       public:
         virtual ~InputContext() = default;
@@ -17,7 +17,7 @@ namespace IngameIME {
          *
          * @param activated if InputContext activated
          */
-        virtual void setActivated(bool activated) = 0;
+        virtual void setActivated(const bool activated) = 0;
         /**
          * @brief Get if InputContext activated
          *
@@ -30,7 +30,7 @@ namespace IngameIME {
          *
          * @param fullscreen if InputContext full screen
          */
-        virtual void setFullScreen(bool fullscreen) = 0;
+        virtual void setFullScreen(const bool fullscreen) = 0;
         /**
          * @brief Get if InputContext in full screen state
          *
