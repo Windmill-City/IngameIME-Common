@@ -109,11 +109,5 @@ namespace IngameIME {
          *
          */
         virtual void terminate() = 0;
-
-        /**
-         * @brief Notify the PreEdit Rect has changed
-         *
-         */
-        virtual void onPreEditRectChange() = 0;
     };
 }// namespace IngameIME
