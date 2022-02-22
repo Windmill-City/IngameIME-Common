@@ -6,7 +6,7 @@
 namespace IngameIME {
     class InputContext {
       public:
-        const std::shared_ptr<Composition> comp;
+        std::shared_ptr<Composition> comp;
 
       public:
         virtual ~InputContext() = default;

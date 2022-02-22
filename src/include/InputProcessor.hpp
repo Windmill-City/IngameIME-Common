@@ -29,7 +29,7 @@ namespace IngameIME {
          * @brief Locale of the InputProcessor
          *
          */
-        std::shared_ptr<Locale> locale;
+        std::shared_ptr<const Locale> locale;
         /**
          * @brief Localized-Name of the InputProcessor
          *
@@ -44,7 +44,7 @@ namespace IngameIME {
          * @brief Set active InputProcessor for current InputProcessor
          *
          */
-        virtual void setActivated() = 0;
+        virtual void setActivated() const = 0;
     };
 
     struct InputProcessorContext
@@ -53,7 +53,7 @@ namespace IngameIME {
          * @brief Current active InputProcessor
          *
          */
-        std::shared_ptr<InputProcessor> inputProcessor;
+        std::shared_ptr<const InputProcessor> inputProcessor;
         /**
          * @brief InputModes of the InputProcessor
          *

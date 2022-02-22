@@ -32,9 +32,6 @@
 %shared_ptr(IngameIME::Composition)
 %shared_ptr(IngameIME::InputContext)
 
-%immutable;
-extern IngameIME::Global& IngameIME::Global::Instance;
-
 namespace std {
   %template(Strings) list<wstring>;
   %template(InputProcessors) list<shared_ptr<IngameIME::InputProcessor>>;
