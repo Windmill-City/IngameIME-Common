@@ -53,12 +53,12 @@ namespace IngameIME {
          * @brief Current active InputProcessor
          *
          */
-        std::shared_ptr<const InputProcessor> inputProcessor;
+        std::shared_ptr<const InputProcessor> proc;
         /**
          * @brief InputModes of the InputProcessor
          *
          */
-        std::list<std::wstring> inputModes;
+        std::list<std::wstring> modes;
     };
 
     enum class InputProcessorState {
