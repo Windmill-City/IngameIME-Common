@@ -9,7 +9,7 @@ Add a new IngameIME C++ Library target
 function(IngameIME_add_library Target Type Source)
     message(STATUS "Adding ${Target} as ${Type} Library with source ${Source}")
     add_library(${Target} ${Type} ${Source})
-    target_include_directories(${Target} PRIVATE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
+    target_include_directories(${Target} PUBLIC ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
 endfunction()
 
 #[[
