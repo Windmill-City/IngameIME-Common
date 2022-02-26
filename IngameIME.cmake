@@ -8,8 +8,17 @@ Add a new IngameIME C++ Library target
 ]]
 function(IngameIME_add_library Target Type)
     message(STATUS "Adding ${Target} as ${Type} Library with Sources: ${ARGN}")
+
+    # Create new target
     add_library(${Target} ${Type} ${ARGN})
-    target_include_directories(${Target} PUBLIC ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
+
+    # Get the file we need to include
+    set(include_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
+    file(GLOB_RECURSE public_headers "${include_dir}/*.hpp*")
+
+    # Set include dir & public headers
+    target_include_directories(${Target} PUBLIC ${include_dir})
+    set_target_properties(${Target} PROPERTIES PUBLIC_HEADER "${public_headers}")
 endfunction()
 
 #[[
@@ -41,10 +50,19 @@ function(IngameIME_add_swig_library Target Type Language)
     # Language Name must in lower case
     string(TOLOWER ${Language} ${Language})
 
+    # Create SWIG target
     swig_add_library(${Target} TYPE ${Type} LANGUAGE ${Language} SOURCES ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/IngameIME.i)
 
+    # Search headers in target include dirs
     set_property(TARGET ${Target} PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
-    target_include_directories(${Target} PUBLIC ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
+
+    # Get the file we need to include
+    set(include_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
+    file(GLOB_RECURSE public_headers "${include_dir}/*.hpp*")
+
+    # Set include dir & public headers & sources
+    target_include_directories(${Target} PUBLIC ${include_dir})
+    set_target_properties(${Target} PROPERTIES PUBLIC_HEADER "${public_headers}")
     target_sources(${Target} PRIVATE ${ARGN})
     
     # Log about support files
