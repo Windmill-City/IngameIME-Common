@@ -4,11 +4,11 @@ Add a new IngameIME C++ Library target
 
 @param Target - Target name of the library
 @param Type - Library type<SHARED|STATIC|MODULE>
-@param Source - Source file of the library to compile
+@param Sources - Source files
 ]]
-function(IngameIME_add_library Target Type Source)
-    message(STATUS "Adding ${Target} as ${Type} Library with source ${Source}")
-    add_library(${Target} ${Type} ${Source})
+function(IngameIME_add_library Target Type)
+    message(STATUS "Adding ${Target} as ${Type} Library with Sources: ${ARGN}")
+    add_library(${Target} ${Type} ${ARGN})
     target_include_directories(${Target} PUBLIC ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
 endfunction()
 
@@ -23,6 +23,7 @@ Currently supported language:
 @param Target - Target name of the library
 @param Type - Library type<SHARED|STATIC|MODULE>
 @param Language - Target language of the binding
+@param Sources - Source files
 
 @note The path of the generated binding files can be retrieved from the SWIG_SUPPORT_FILES_DIRECTORY target property.
 @code{
@@ -30,7 +31,7 @@ Currently supported language:
 }
 ]]
 function(IngameIME_add_swig_library Target Type Language)
-    message(STATUS "Adding ${Target} as SWIG ${Type} Library for Language ${Language}")
+    message(STATUS "Adding ${Target} as SWIG ${Type} Library for Language ${Language} with Sources: ${ARGN}")
     find_package(SWIG 4.0.2 REQUIRED)
     set(UseSWIG_MODULE_VERSION 2)
 
@@ -44,6 +45,7 @@ function(IngameIME_add_swig_library Target Type Language)
 
     set_property(TARGET ${Target} PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
     target_include_directories(${Target} PUBLIC ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
+    target_sources(${Target} PRIVATE ${ARGN})
     
     # Log about support files
     get_property(SUPPORT_FILES_DIR TARGET ${Target} PROPERTY SWIG_SUPPORT_FILES_DIRECTORY)

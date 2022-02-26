@@ -7,6 +7,9 @@
 namespace IngameIME {
     class Global : public InputProcessorCallbackHolder {
       public:
+        static const std::string Version;
+
+      public:
         static Global& getInstance();
 
       public:
