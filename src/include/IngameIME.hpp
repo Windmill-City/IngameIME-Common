@@ -10,7 +10,7 @@ namespace IngameIME {
         static const std::string Version;
 
       public:
-        static Global& getInstance();
+        static Global& getInstance(void* first, ...);
 
       public:
         virtual ~Global() = default;
