@@ -45,7 +45,7 @@ namespace IngameIME {
          * @brief PreEdit text
          *
          */
-        std::wstring content;
+        std::string content;
     };
 
     /**
@@ -63,7 +63,7 @@ namespace IngameIME {
      * @brief Receive the convert result of the preEdit text
      *
      */
-    using CommitCallbackHolder = ICallbackHolder<const std::wstring>;
+    using CommitCallbackHolder = ICallbackHolder<const std::string>;
 
     struct CandidateListContext
     {
@@ -76,7 +76,7 @@ namespace IngameIME {
          * @brief Candidate strings
          *
          */
-        std::list<std::wstring> candidates;
+        std::list<std::string> candidates;
     };
 
     /**

@@ -14,12 +14,12 @@ namespace IngameIME {
          * @brief Locale identifier
          *
          */
-        std::wstring locale;
+        std::string locale;
         /**
          * @brief Localized-Name of the Locale
          *
          */
-        std::wstring name;
+        std::string name;
     };
 
     class InputProcessor {
@@ -34,7 +34,7 @@ namespace IngameIME {
          * @brief Localized-Name of the InputProcessor
          *
          */
-        std::wstring name;
+        std::string name;
 
       public:
         virtual ~InputProcessor() = default;
@@ -58,7 +58,7 @@ namespace IngameIME {
          * @brief InputModes of the InputProcessor
          *
          */
-        std::list<std::wstring> modes;
+        std::list<std::string> modes;
     };
 
     enum class InputProcessorState {
