@@ -65,13 +65,12 @@ enum class CompositionState
  * Composition::Update
  *
  */
-using PreEditCallbackHolder =
-    ICallbackHolder<const CompositionState, const PreEditContext*>;
+using PreEditCallbackHolder = ICallbackHolder<const CompositionState, const PreEditContext*>;
 /**
  * @brief Receive the convert result of the preEdit text
  *
  */
-using CommitCallbackHolder = ICallbackHolder<const std::wstring>;
+using CommitCallbackHolder  = ICallbackHolder<const std::wstring>;
 
 struct CandidateListContext
 {
@@ -103,8 +102,7 @@ enum class CandidateListState
  * CandidateListContext non-Null only when CandidateList::Update
  *
  */
-using CandidateListCallbackHolder =
-    ICallbackHolder<const CandidateListState, const CandidateListContext*>;
+using CandidateListCallbackHolder = ICallbackHolder<const CandidateListState, const CandidateListContext*>;
 
 /**
  * @brief Composition

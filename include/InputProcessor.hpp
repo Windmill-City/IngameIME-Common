@@ -81,6 +81,5 @@ enum class InputProcessorState
     FullUpdate
 };
 
-using InputProcessorCallbackHolder =
-    ICallbackHolder<const InputProcessorState, const InputProcessorContext&>;
+using InputProcessorCallbackHolder = ICallbackHolder<const InputProcessorState, const InputProcessorContext&>;
 } // namespace IngameIME

@@ -17,8 +17,7 @@ class ICallbackHolder
      * @param callback callback to set
      * @return std::function<void(Args...)> previous callback
      */
-    std::function<void(Args...)>
-    setCallback(const std::function<void(Args...)> callback)
+    std::function<void(Args...)> setCallback(const std::function<void(Args...)> callback)
     {
         auto oldCallback = this->callback;
         this->callback   = callback;

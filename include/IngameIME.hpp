@@ -23,20 +23,18 @@ class Global : public InputProcessorCallbackHolder
      *
      * @return std::shared_ptr<InputProcessor>
      */
-    virtual std::shared_ptr<const InputProcessor>
-    getActiveInputProcessor() const = 0;
+    virtual std::shared_ptr<const InputProcessor>            getActiveInputProcessor() const   = 0;
     /**
      * @brief Get system availiable InputProcessor
      *
      * @return std::list<std::shared_ptr<InputProcessor>>
      */
-    virtual std::list<std::shared_ptr<const InputProcessor>>
-                                          getInputProcessors() const        = 0;
+    virtual std::list<std::shared_ptr<const InputProcessor>> getInputProcessors() const        = 0;
     /**
      * @brief Get the InputContext object
      *
      * @return std::shared_ptr<InputContext>
      */
-    virtual std::shared_ptr<InputContext> getInputContext(void* first, ...) = 0;
+    virtual std::shared_ptr<InputContext>                    getInputContext(void* first, ...) = 0;
 };
 } // namespace IngameIME
