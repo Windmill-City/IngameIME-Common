@@ -13,7 +13,7 @@ function(IngameIME_add_library Target Type)
     add_library(${Target} ${Type} ${ARGN})
 
     # Get the file we need to include
-    set(include_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
+    set(include_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include)
     file(GLOB_RECURSE public_headers "${include_dir}/*.hpp*")
 
     # Set include dir & public headers
@@ -57,7 +57,7 @@ function(IngameIME_add_swig_library Target Type Language)
     set_property(TARGET ${Target} PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
 
     # Get the file we need to include
-    set(include_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/include)
+    set(include_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include)
     file(GLOB_RECURSE public_headers "${include_dir}/*.hpp*")
 
     # Set include dir & public headers & sources
