@@ -53,6 +53,36 @@ class InputProcessor
     virtual void setActivated() const = 0;
 };
 
+enum class InputMode
+{
+    /**
+     * @brief InputProcessor won't construct a composition when specific key being pressed,
+     but converts them to specific char(similar to WM_CHAR) and pass them through CommitCallback
+     */
+    AlphaNumeric,
+    /**
+     * @brief InputProcessor construct a composition when specific key being pressed,
+     or convert them to language specific Punctuation Mark
+     */
+    Native,
+    /**
+     * @brief Japanese InputProcessor specific PreEdit text convertion mode
+     */
+    Katakana,
+    /**
+     * @brief Japanese InputProcessor specific PreEdit text convertion mode
+     */
+    Hiragana,
+    /**
+     * @brief Punctuation Mark conversion mode
+     */
+    FullShape,
+    /**
+     * @brief Punctuation Mark conversion mode
+     */
+    HalfShape
+};
+
 struct InputProcessorContext
 {
     /**
@@ -64,7 +94,7 @@ struct InputProcessorContext
      * @brief InputModes of the InputProcessor
      *
      */
-    std::list<std::wstring>               modes;
+    std::list<InputMode>                  modes;
 };
 
 enum class InputProcessorState
