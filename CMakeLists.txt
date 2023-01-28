@@ -5,9 +5,9 @@ project(IngameIME-Common)
 # Build files
 # ##############################################################################
 
-set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/ingameime-common)
+set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
 file(GLOB_RECURSE public_headers
-     ${CMAKE_CURRENT_SOURCE_DIR}/include/ingameime-common/*.hpp)
+     ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp)
 
 # ##############################################################################
 # Targets
