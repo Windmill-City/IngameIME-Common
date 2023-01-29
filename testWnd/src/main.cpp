@@ -4,7 +4,23 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#define NK_INCLUDE_FIXED_TYPES
+#define NK_INCLUDE_STANDARD_IO
+#define NK_INCLUDE_STANDARD_VARARGS
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_DEFAULT_FONT
+#define NK_BUTTON_TRIGGER_ON_RELEASE
+#define NK_KEYSTATE_BASED_INPUT
+#define NK_IMPLEMENTATION
+#include <nuklear.h>
+#define NK_GLFW_GL4_IMPLEMENTATION
+#include <nuklear_glfw_gl4.h>
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+struct nk_context* nk;
 
 int main()
 {
@@ -19,7 +35,7 @@ int main()
     // GLFW Init End
 
     // Create Window Start
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 800, "testWnd", NULL, NULL);
     if (!window)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -39,17 +55,39 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     // GLAD Init End
 
+    // Nuklear Init Start
+    nk = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS, 512 * 1024, 128 * 1024);
+
+    // Load Font
+    struct nk_font_atlas* atlas;
+    nk_glfw3_font_stash_begin(&atlas);
+    nk_glfw3_font_stash_end();
+    // Nuklear Init End
+
     // Event Loop
     while (!glfwWindowShouldClose(window))
     {
+        // Nuklear Window Start
+        nk_glfw3_new_frame();
+        if (nk_begin(nk,
+                     "main",
+                     nk_rect(800 / 2 - 300, 800 / 2 - 300, 600, 600),
+                     NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE))
+        {
+        }
+        nk_end(nk);
+        // Nuklear Window End
+
         // Background color
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        nk_glfw3_render(NK_ANTI_ALIASING_ON);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    nk_glfw3_shutdown();
     glfwTerminate();
     std::exit(EXIT_SUCCESS);
 }
@@ -57,4 +95,5 @@ int main()
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+    nk_window_set_position(nk, "main", nk_vec2(width / 2 - 300, height / 2 - 300));
 }

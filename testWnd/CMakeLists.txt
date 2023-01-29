@@ -18,6 +18,7 @@ endif()
 
 add_subdirectory(glfw EXCLUDE_FROM_ALL)
 add_subdirectory(glad EXCLUDE_FROM_ALL)
+add_subdirectory(nuklear EXCLUDE_FROM_ALL)
 
 # ##############################################################################
 # Targets
@@ -25,7 +26,7 @@ add_subdirectory(glad EXCLUDE_FROM_ALL)
 
 add_executable(testWnd src/main.cpp)
 target_include_directories(testWnd PRIVATE include)
-target_link_libraries(testWnd PRIVATE glfw glad)
+target_link_libraries(testWnd PRIVATE glfw glad nuklear)
 
 # ##############################################################################
 # Packaging
