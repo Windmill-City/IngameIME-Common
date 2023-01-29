@@ -16,25 +16,16 @@ endif()
 # Find Packages
 # ##############################################################################
 
-add_subdirectory(../../ build EXCLUDE_FROM_ALL)
 add_subdirectory(glfw EXCLUDE_FROM_ALL)
 add_subdirectory(glad EXCLUDE_FROM_ALL)
-
-# ##############################################################################
-# Build files
-# ##############################################################################
-
-file(GLOB_RECURSE source_file ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 # ##############################################################################
 # Targets
 # ##############################################################################
 
-add_executable(testWnd ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
-target_include_directories(testWnd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_sources(testWnd PRIVATE "${source_file}")
-target_link_libraries(testWnd PRIVATE glad_static glfw)
-target_link_libraries(testWnd PRIVATE IngameIME_Win32_Static)
+add_executable(testWnd src/main.cpp)
+target_include_directories(testWnd PRIVATE include)
+target_link_libraries(testWnd PRIVATE glfw glad)
 
 # ##############################################################################
 # Packaging
