@@ -35,7 +35,9 @@ int main()
     // GLFW Init End
 
     // Create Window Start
-    GLFWwindow* window = glfwCreateWindow(800, 800, "testWnd", NULL, NULL);
+    int wnd_w = 800, wnd_h = 800;
+
+    GLFWwindow* window = glfwCreateWindow(wnd_w, wnd_h, "testWnd", NULL, NULL);
     if (!window)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -44,7 +46,14 @@ int main()
         std::exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
-    // Create Window End
+
+    // Place the window at screen center
+    {
+        int x, y, sw, sh;
+        glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), &x, &y, &sw, &sh);
+        glfwSetWindowPos(window, x + sw / 2 - wnd_w / 2, y + sh / 2 - wnd_h / 2);
+    }
+    //  Create Window End
 
     // GLAD Init Start
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -68,10 +77,12 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         // Nuklear Window Start
+        int main_w = 600, main_h = 600;
+
         nk_glfw3_new_frame();
         if (nk_begin(nk,
                      "main",
-                     nk_rect(800 / 2 - 300, 800 / 2 - 300, 600, 600),
+                     nk_rect(wnd_w / 2 - main_w / 2, wnd_h / 2 - main_h / 2, main_w, main_h),
                      NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE))
         {
         }
