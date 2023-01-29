@@ -35,7 +35,7 @@ int main()
     // GLFW Init End
 
     // Create Window Start
-    int wnd_w = 800, wnd_h = 800;
+    int wnd_w = 800, wnd_h = 800, wnd_x = 0, wnd_y = 0;
 
     GLFWwindow* window = glfwCreateWindow(wnd_w, wnd_h, "testWnd", NULL, NULL);
     if (!window)
@@ -85,6 +85,22 @@ int main()
                      nk_rect(wnd_w / 2 - main_w / 2, wnd_h / 2 - main_h / 2, main_w, main_h),
                      NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE))
         {
+            nk_layout_row_dynamic(nk, 30, 1);
+            if (nk_button_label(nk, "Toggle Fullscreen"))
+            {
+                if (glfwGetWindowMonitor(window))
+                {
+                    glfwSetWindowMonitor(window, NULL, wnd_x, wnd_y, wnd_w, wnd_h, 0);
+                }
+                else
+                {
+                    GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
+                    const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
+                    glfwGetWindowPos(window, &wnd_x, &wnd_y);
+                    glfwGetWindowSize(window, &wnd_w, &wnd_h);
+                    glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+                }
+            }
         }
         nk_end(nk);
         // Nuklear Window End
