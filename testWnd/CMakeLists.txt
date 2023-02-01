@@ -27,6 +27,9 @@ add_subdirectory(nuklear EXCLUDE_FROM_ALL)
 add_executable(testWnd src/main.cpp)
 target_include_directories(testWnd PRIVATE include)
 target_link_libraries(testWnd PRIVATE glfw glad nuklear)
+add_custom_command(TARGET testWnd POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets $<TARGET_FILE_DIR:testWnd>/assets
+)
 
 # ##############################################################################
 # Packaging
