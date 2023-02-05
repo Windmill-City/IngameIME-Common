@@ -12,16 +12,26 @@ class ICallbackHolder
 
   public:
     /**
-     * @brief Set callback
+     * @brief set callback
      *
      * @param callback callback to set
-     * @return std::function<void(Args...)> previous callback
+     * @return std::function<void(args...)> previous callback
      */
     std::function<void(Args...)> setCallback(const std::function<void(Args...)> callback)
     {
         auto oldCallback = this->callback;
         this->callback   = callback;
         return oldCallback;
+    }
+
+    /**
+     * @brief get callback
+     *
+     * @return std::function<void(args...)> current callback
+     */
+    std::function<void(Args...)> getCallback()
+    {
+        return callback;
     }
 
     /**

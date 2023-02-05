@@ -7,43 +7,35 @@
 namespace IngameIME
 {
 /**
- * @brief the boundary rectangle of the preedit, in window coordinate
+ * @brief Bounding box of the PreEdit text drawn by the Application, the position is in window coordinate
  *
- * @note If the length of preedit is 0 (as it would be drawn by input method),
- * the rectangle coincides with the insertion point, and its width is 0.
  */
 struct PreEditRect
 {
-    int32_t left;
-    int32_t top;
-    int32_t right;
-    int32_t bottom;
+    int32_t x;
+    int32_t y;
+    int32_t width;
+    int32_t height;
 };
 
 /**
- * @brief Input Method position its Candidate Window near the PreEditRect
- *
- */
-using PreEditRectCallbackHolder = ICallbackHolder<PreEditRect&>;
-
-/**
- * @brief Context of the PreEdit text
+ * @brief Application receives the PreEdit text on CompositionState::Update, and draw it in its TextEdit contorl
  *
  */
 struct PreEditContext
 {
     /**
-     * @brief Start index of the selection(inclusive)
+     * @brief Index of the selection start(inclusive)
      *
      */
     int32_t      selStart;
     /**
-     * @brief End index of the selection(exclusive)
+     * @brief Index of the selection end(exclusive)
      *
      */
     int32_t      selEnd;
     /**
-     * @brief PreEdit text
+     * @brief PreEdit text, Unicode encoded
      *
      */
     std::wstring content;
@@ -61,17 +53,20 @@ enum class CompositionState
 };
 
 /**
- * @brief PreEdit text callback, PreEditContext non-Null only when
- * Composition::Update
+ * @brief Application receives the PreEdit text on CompositionState::Update, and draw it in its TextEdit contorl
  *
  */
 using PreEditCallbackHolder = ICallbackHolder<const CompositionState, const PreEditContext*>;
 /**
- * @brief Receive the convert result of the preEdit text
+ * @brief Application receives the convert result of the PreEdit text, and insert it into its TextEdit control
  *
  */
 using CommitCallbackHolder  = ICallbackHolder<const std::wstring>;
 
+/**
+ * @brief Application receives Candidate strings in fullscreen mode, and draw the CandidateList itself
+ *
+ */
 struct CandidateListContext
 {
     /**
@@ -98,8 +93,7 @@ enum class CandidateListState
 };
 
 /**
- * @brief Receive Candidate strings in fullscreen mode,
- * CandidateListContext non-Null only when CandidateList::Update
+ * @brief Application receives Candidate strings in fullscreen mode, and draw the CandidateList itself
  *
  */
 using CandidateListCallbackHolder = ICallbackHolder<const CandidateListState, const CandidateListContext*>;
@@ -110,7 +104,6 @@ using CandidateListCallbackHolder = ICallbackHolder<const CandidateListState, co
  */
 class Composition
     : public PreEditCallbackHolder
-    , public PreEditRectCallbackHolder
     , public CommitCallbackHolder
     , public CandidateListCallbackHolder
 {
@@ -118,6 +111,16 @@ class Composition
     virtual ~Composition() = default;
 
   public:
+    /**
+     * @brief Bounding box of the PreEdit text drawn by the Application, the position is in window coordinate
+     *
+     */
+    virtual void        setPreEditRect(const PreEditRect& rect) = 0;
+    /**
+     * @brief Bounding box of the PreEdit text drawn by the Application, the position is in window coordinate
+     *
+     */
+    virtual PreEditRect getPreEditRect()                        = 0;
     /**
      * @brief Terminate active composition
      *
