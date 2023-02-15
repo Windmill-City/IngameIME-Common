@@ -13,7 +13,7 @@ Example: <https://github.com/Windmill-City/IngameIME-Common/tree/main/testWnd>
 You must set active locale before calling any IngameIME methods, or you may get messy codes in CJK strings
 
 ```c++
-// Pass empty string to set system default locale
+// Empty string means system default locale
 setlocale(LC_ALL, "");
 ```
 
