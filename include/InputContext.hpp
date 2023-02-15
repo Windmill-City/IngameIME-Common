@@ -15,26 +15,26 @@ class InputContext
 
   public:
     /**
-     * @brief Set InputContext activate state
+     * @brief Set InputMethod active state
      *
-     * @param activated if InputContext activated
+     * @param activated if InputMethod activated
      */
     virtual void setActivated(const bool activated)   = 0;
     /**
-     * @brief Get if InputContext activated
+     * @brief Get if InputMethod activated
      *
      * @return true activated
      * @return false not activated
      */
     virtual bool getActivated() const                 = 0;
     /**
-     * @brief Set InputContext full screen state
+     * @brief Set InputMethod full screen state
      *
-     * @param fullscreen if InputContext full screen
+     * @param fullscreen if InputMethod full screen
      */
     virtual void setFullScreen(const bool fullscreen) = 0;
     /**
-     * @brief Get if InputContext in full screen state
+     * @brief Get if InputMethod in full screen state
      *
      * @return true full screen mode
      * @return false window mode

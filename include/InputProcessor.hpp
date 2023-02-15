@@ -16,12 +16,12 @@ enum class InputProcessorType
 struct Locale
 {
     /**
-     * @brief Locale identifier
+     * @brief Locale identifier, Unicode encoded
      *
      */
     std::wstring locale;
     /**
-     * @brief Localized-Name of the Locale
+     * @brief Localized-Name of the Locale, Unicode encoded
      *
      */
     std::wstring name;

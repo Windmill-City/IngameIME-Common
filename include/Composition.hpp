@@ -25,12 +25,12 @@ struct PreEditRect
 struct PreEditContext
 {
     /**
-     * @brief Index of the selection start(inclusive)
+     * @brief Selection start of PreEdit text(inclusive)
      *
      */
     int32_t      selStart;
     /**
-     * @brief Index of the selection end(exclusive)
+     * @brief Selection end of PreEdit text(exclusive)
      *
      */
     int32_t      selEnd;
@@ -55,6 +55,11 @@ enum class CompositionState
 /**
  * @brief Application receives the PreEdit text on CompositionState::Update, and draw it in its TextEdit contorl
  *
+ * @possible state:
+ * CompositionState::Begin, NULL;
+ * CompositionState::Update, PreEditContext*;
+ * CompositionState::End, NULL;
+ *
  */
 using PreEditCallbackHolder = ICallbackHolder<const CompositionState, const PreEditContext*>;
 /**
@@ -75,7 +80,7 @@ struct CandidateListContext
      */
     int32_t                 selection;
     /**
-     * @brief Candidate strings
+     * @brief Candidate strings, Unicode encoded
      *
      */
     std::list<std::wstring> candidates;
@@ -94,6 +99,11 @@ enum class CandidateListState
 
 /**
  * @brief Application receives Candidate strings in fullscreen mode, and draw the CandidateList itself
+ *
+ * @possible state:
+ * CandidateListState::Begin, NULL;
+ * CandidateListState::Update, CandidateListContext*;
+ * CandidateListState::End, NULL;
  *
  */
 using CandidateListCallbackHolder = ICallbackHolder<const CandidateListState, const CandidateListContext*>;
