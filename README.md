@@ -2,7 +2,13 @@
 
 Common interface of IngameIME
 
-## Note
+## How to use
+
+Example: <https://github.com/Windmill-City/IngameIME-Common/tree/main/testWnd>
+
+### Initialize
+
+#### Win32
 
 You must set active locale before calling any IngameIME methods, or you may get messy codes in CJK strings
 
@@ -11,38 +17,63 @@ You must set active locale before calling any IngameIME methods, or you may get 
 setlocale(LC_ALL, "");
 ```
 
-## InputContext
-
-To pass KeyEvent to the GameWindow
-
 ```c++
-InputContext::setActivated(false)
+// IngameIME: Initialize
+HWND your_window_handle;
+auto im = IngameIME::Global::getInstance().getInputContext(your_window_handle);
 ```
 
-To pass KeyEvent to the TextService
+### PreEdit & Commit
 
 ```c++
-InputContext::setActivated(true)
+// IngameIME: Receive commit text and insert it into your textedit
+im->comp->IngameIME::CommitCallbackHolder::setCallback(
+    [window](std::wstring commit)
+    {
+        // Insert commit into textedit
+        your_textedit.insert(commit);
+    });
+// IngameIME: Receive PreEdit text and draw it in your textedit
+im->comp->IngameIME::PreEditCallbackHolder::setCallback(
+    [&preedit](IngameIME::CompositionState state, const IngameIME::PreEditContext* ctx)
+    {
+        switch (state)
+        {
+        case IngameIME::CompositionState::Begin:
+            // Prepare for PreEdit text rendering
+            your_preedit_renderer.reset_state();
+        case IngameIME::CompositionState::End:
+            // Cleanup PreEdit text rendering stuff
+            your_preedit_renderer.cleanup();
+            break;
+        case IngameIME::CompositionState::Update:
+            // Do PreEdit text rendering
+            your_preedit_renderer.render(ctx->content, ctx->selStart, ctx->selEnd);
+            break;
+        }
+    });
 ```
 
-## InputModes
+#### Update PreEdit Rect
 
-For TextServices in Asia there are following InputModes available:
+```c++
+Your_PreEdit_Renderer::layout()
+{
+    // IngameIME: Pass the bounder of the PreEdit text you are rendering
+    // You should place the PreEdit text at your textedit's caret
+    im->comp->setPreEditRect({Bounder.x, Bounder.y, Bounder.width, Bounder.height});
+}
+```
 
-Mutually exclusive InputModes indicate how TextService should convert PreEdit text
+### Fullscreen Adaptation
 
-- AlphaNumeric
-- Native
+If your game is in fullscreen mode, you need to do extra work:
 
-Mutually exclusive InputModes indicate how TextService should convert punctuation marks
+#### State Indicator & Candidate List Drawing
 
-- HalfShape
-- FullShape
-
-Mutually exclusive InputModes indicate how Japanese TextService should convert PreEdit text
-
-- Hiragana
-- Katakana
+```c++
+//...
+```
 
 ## Bindings
 
