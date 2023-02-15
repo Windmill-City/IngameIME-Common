@@ -28,7 +28,7 @@ auto im = IngameIME::Global::getInstance().getInputContext(your_window_handle);
 ```c++
 // IngameIME: Receive commit text and insert it into your textedit
 im->comp->IngameIME::CommitCallbackHolder::setCallback(
-    [(std::wstring commit)
+    [](std::wstring commit)
     {
         // Insert commit into textedit
         your_textedit.insert(commit);
