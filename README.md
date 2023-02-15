@@ -28,14 +28,14 @@ auto im = IngameIME::Global::getInstance().getInputContext(your_window_handle);
 ```c++
 // IngameIME: Receive commit text and insert it into your textedit
 im->comp->IngameIME::CommitCallbackHolder::setCallback(
-    [window](std::wstring commit)
+    [(std::wstring commit)
     {
         // Insert commit into textedit
         your_textedit.insert(commit);
     });
 // IngameIME: Receive PreEdit text and draw it in your textedit
 im->comp->IngameIME::PreEditCallbackHolder::setCallback(
-    [&preedit](IngameIME::CompositionState state, const IngameIME::PreEditContext* ctx)
+    [](IngameIME::CompositionState state, const IngameIME::PreEditContext* ctx)
     {
         switch (state)
         {
