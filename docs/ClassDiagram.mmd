@@ -2,10 +2,10 @@ classDiagram
 class PreEditContext{
     selStart int32
     selEnd int32
-    content wstring
+    content std::wstring
 }
 class CompositionState{
-    Start
+    Begin
     Update
     End
 }
@@ -17,17 +17,13 @@ class PreEditRect{
     right int32
     bottom int32
 }
-class PreEditRectCallback
 
 class CandidateListContext{
     selection int32
     candidates list_wstring
-
-    setSelection(int32)
-    setFinalize()
 }
 class CandidateListState{
-    Start
+    Begin
     Update
     End
 }
@@ -38,13 +34,16 @@ class CommitCallback
 class ICallback{
     callback functional_F
     setCallback(functional_F)
+    getCallback() functional_F
     runCallback(T...)
 }
 class Composition{
+    setPreEditRect(PreEditRect)
+    getPreEditRect() PreEditRect
     terminate()
 }
 class InputContext{
-    composition Composition
+    comp Composition
 
     setActivated(bool)
     getActivated() bool
@@ -73,7 +72,8 @@ class InputProcessorState{
 }
 class InputProcessorContext{
     inputProcessor InputProcessor
-    inputModes list_InputMode
+    conv ConversionMode
+    pun PuncuationMode
 }
 class Global{
     getActiveInputProcessor() InputProcessorContext
@@ -87,9 +87,6 @@ PreEditCallback --> CompositionState
 PreEditCallback --> PreEditContext
 PreEditCallback ..|> ICallback
 
-PreEditRectCallback --> PreEditRect
-PreEditRectCallback ..|> ICallback
-
 CandidateListCallback ..|> ICallback
 CandidateListCallback --> CandidateListState
 CandidateListCallback --> CandidateListContext
@@ -97,7 +94,6 @@ CandidateListCallback --> CandidateListContext
 CommitCallback ..|> ICallback
 
 Composition --|> PreEditCallback
-Composition --|> PreEditRectCallback
 Composition --|> CommitCallback
 Composition --|> CandidateListCallback
 
