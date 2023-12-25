@@ -1,0 +1,107 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 120
+
+Language: Cpp
+# Strings to be interpreted as attributes/qualifers
+AttributeMacros: []
+
+# Macros
+IndentPPDirectives: BeforeHash
+PPIndentWidth: 2
+
+# Macros to be interpreted as foreach loops
+ForEachMacros: []
+
+# Macros to be interpred as conditionals
+IfMacros: []
+
+# Include
+IncludeBlocks: Preserve
+SortIncludes: CaseInsensitive
+
+# Using namespaces
+SortUsingDeclarations: true
+
+# Brace
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: true
+  BeforeWhile: true
+  SplitEmptyFunction: true
+  AfterControlStatement: Always
+KeepEmptyLinesAtTheStartOfBlocks: false
+SeparateDefinitionBlocks: Always
+
+# Comment
+ReflowComments: true
+
+# Class
+EmptyLineBeforeAccessModifier: LogicalBlock
+EmptyLineAfterAccessModifier: Never
+BreakInheritanceList: BeforeComma
+BreakConstructorInitializers: BeforeComma
+PackConstructorInitializers: Never
+
+# Alignment
+PointerAlignment: Left
+ReferenceAlignment: Left
+QualifierAlignment: Left
+
+# Array Structure
+AlignArrayOfStructures: Right
+
+# Consecutive
+AlignConsecutiveAssignments: AcrossComments
+AlignConsecutiveBitFields: AcrossComments
+AlignConsecutiveDeclarations: AcrossComments
+AlignConsecutiveMacros: AcrossComments
+
+# Operands
+AlignOperands: AlignAfterOperator
+BreakBeforeBinaryOperators: NonAssignment
+
+# Bit fields
+BitFieldColonSpacing: After
+
+# Function
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: None
+AlwaysBreakAfterReturnType: None
+BinPackArguments: false
+BinPackParameters: false
+
+# Loop
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Empty
+
+# String
+AlwaysBreakBeforeMultilineStrings: true
+BreakStringLiterals: false
+
+# If Statement
+AllowShortIfStatementsOnASingleLine: WithoutElse
+
+# Switch Case
+AllowShortCaseLabelsOnASingleLine: true
+
+# Lambda
+AllowShortLambdasOnASingleLine: All
+
+# Enum
+AllowShortEnumsOnASingleLine: false
+
+# Template
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeConceptDeclarations: true
