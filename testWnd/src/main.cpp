@@ -4,18 +4,17 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#define NK_INCLUDE_FIXED_TYPES
-#define NK_INCLUDE_STANDARD_IO
-#define NK_INCLUDE_STANDARD_VARARGS
-#define NK_INCLUDE_DEFAULT_ALLOCATOR
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
-#define NK_INCLUDE_FONT_BAKING
-#define NK_BUTTON_TRIGGER_ON_RELEASE
-#define NK_KEYSTATE_BASED_INPUT
+#include "IMRenderer.hpp"
+
 #define NK_IMPLEMENTATION
 #include <nuklear.h>
 #define NK_GLFW_GL4_IMPLEMENTATION
 #include <nuklear_glfw_gl4.h>
+
+#ifdef WIN32
+  #define GLFW_EXPOSE_NATIVE_WIN32
+  #include <GLFW/glfw3native.h>
+#endif // WIN32
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -44,6 +43,7 @@ const nk_rune ranges[] = {
 
 int main()
 {
+    setlocale(LC_ALL, "");
     // GLFW Init Start
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -102,6 +102,43 @@ int main()
     nk_style_set_font(nk, &font->handle);
     // Nuklear Init End
 
+    // IngameIME: Initialize
+    auto im = IngameIME::Global::getInstance().getInputContext(glfwGetWin32Window(window));
+
+    // TextEdit Init Start
+    struct nk_text_edit       edit;
+    IngameIME::PreEditContext preedit;
+    nk_textedit_init_default(&edit);
+    // IngameIME: Receive commit text and insert it into your textedit
+    im->comp->IngameIME::CommitCallbackHolder::setCallback(
+        [window](std::wstring commit)
+        {
+            nk_input_begin(nk);
+            for (auto iter = commit.begin(); iter != commit.end(); iter++)
+            {
+                nk_rune u = *iter;
+                nk_glfw3_char_callback(window, u);
+            }
+            nk_input_end(nk);
+        });
+    // IngameIME: Receive PreEdit text and draw it in your textedit
+    im->comp->IngameIME::PreEditCallbackHolder::setCallback(
+        [&preedit](IngameIME::CompositionState state, const IngameIME::PreEditContext* ctx)
+        {
+            switch (state)
+            {
+            case IngameIME::CompositionState::Begin:
+            case IngameIME::CompositionState::End:
+                preedit.content  = std::wstring();
+                preedit.selStart = preedit.selEnd = -1;
+                break;
+            case IngameIME::CompositionState::Update:
+                preedit = *ctx;
+                break;
+            }
+        });
+    // TextEdit Init End
+
     // Event Loop
     while (!glfwWindowShouldClose(window))
     {
@@ -118,12 +155,13 @@ int main()
             if (glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, GLFW_TRUE);
 
             // Toggle Fullscreen
-            nk_layout_row_dynamic(nk, 30, 1);
+            nk_layout_row_dynamic(nk, 0, 1);
             if (nk_button_label(nk, "Toggle Fullscreen"))
             {
                 if (glfwGetWindowMonitor(window))
                 {
                     glfwSetWindowMonitor(window, NULL, wnd_x, wnd_y, wnd_w, wnd_h, 0);
+                    im->setFullScreen(false);
                 }
                 else
                 {
@@ -132,17 +170,37 @@ int main()
                     glfwGetWindowPos(window, &wnd_x, &wnd_y);
                     glfwGetWindowSize(window, &wnd_w, &wnd_h);
                     glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+                    im->setFullScreen(true);
                 }
             }
 
             // TextEdit
-            static char buffer[256];
-            nk_layout_row_dynamic(nk, 30, 1);
-            nk_edit_string_zero_terminated(nk,
-                                           NK_EDIT_FIELD | NK_EDIT_SIG_ENTER | NK_EDIT_GOTO_END_ON_ACTIVATE,
-                                           buffer,
-                                           sizeof(buffer),
-                                           nk_filter_default);
+            nk_layout_row_dynamic(nk, 0, 1);
+            nk_flags events = nk_edit_buffer(nk,
+                                             NK_EDIT_FIELD | NK_EDIT_SIG_ENTER | NK_EDIT_GOTO_END_ON_ACTIVATE,
+                                             &edit,
+                                             nk_filter_default);
+            if (events & NK_EDIT_ACTIVATED)
+            {
+                im->setActivated(true);
+            }
+            if (events & NK_EDIT_DEACTIVATED)
+            {
+                im->setActivated(false);
+            }
+            if (events & NK_EDIT_ACTIVE)
+            {
+                // IngameIME: Pass PreEdit Rect to position the CandidateList Window
+                im->comp->setPreEditRect({(int)edit.preedit_pos.x, (int)edit.preedit_pos.y, 0, 20});
+            }
+
+            // Attribute
+            nk_layout_row_dynamic(nk, 0, 1);
+            nk_label(nk, "Attributes", NK_TEXT_CENTERED);
+
+            nk_layout_row_dynamic(nk, 0, 2);
+            nk_labelf(nk, NK_TEXT_LEFT, "PreEdit Pos: %.1f, %.1f", edit.preedit_pos.x, edit.preedit_pos.y);
+            nk_labelf(nk, NK_TEXT_LEFT, "PreEdit Cursor: %d, %d", preedit.selStart, preedit.selEnd);
         }
         nk_end(nk);
         // Nuklear Window End
