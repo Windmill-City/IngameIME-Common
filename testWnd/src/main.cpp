@@ -42,10 +42,12 @@ int main()
         std::exit(EXIT_FAILURE);
     }
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSwapInterval(1);
     // GLAD Init End
 
     MainContext::Main.Window = window;
     MainContext::Main.setup();
+    MainContext::Main.Render.setup();
     MainContext::Main.centerWindow();
 
     // Event Loop

@@ -7,3 +7,6 @@
 [submodule "testWnd/ctest/gtest"]
 	path = testWnd/ctest/gtest
 	url = git@github.com:google/googletest.git
+[submodule "testWnd/imgui"]
+	path = testWnd/imgui
+	url = git@github.com:ocornut/imgui.git

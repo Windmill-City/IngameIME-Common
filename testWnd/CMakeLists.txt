@@ -18,6 +18,12 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 add_subdirectory(glad EXCLUDE_FROM_ALL)
 add_subdirectory(glfw EXCLUDE_FROM_ALL)
 
+# Library Target
+aux_source_directory(imgui IMGUI_SRC_LIST)
+add_library(imgui STATIC ${IMGUI_SRC_LIST} imgui/backends/imgui_impl_glfw.cpp imgui/backends/imgui_impl_opengl3.cpp)
+target_include_directories(imgui PUBLIC imgui imgui/backends)
+target_link_libraries(imgui PUBLIC glfw glad)
+
 # ####################################
 # Source Files
 # ####################################
@@ -28,7 +34,7 @@ aux_source_directory(src SRC_LIST)
 # ####################################
 add_executable(IngameIME-Test ${SRC_LIST})
 target_include_directories(IngameIME-Test PRIVATE include)
-target_link_libraries(IngameIME-Test PRIVATE glfw glad)
+target_link_libraries(IngameIME-Test PRIVATE glfw glad imgui)
 
 # Copy file assets
 add_custom_command(TARGET IngameIME-Test POST_BUILD
