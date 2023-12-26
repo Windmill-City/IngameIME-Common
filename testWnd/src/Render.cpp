@@ -16,6 +16,8 @@ static IngameIME::PreEditContext*       PreEditCtx;
 static IngameIME::CandidateListContext* CandidateListCtx;
 static IngameIME::InputMode             Mode           = IngameIME::InputMode::AlphaNumeric;
 static double                           LastModeChange = 0;
+// Config how long the InputMode displays
+static double                           AutoHideDelay  = 3;
 
 void OverlayTextV(const char* fmt, va_list args)
 {
@@ -53,7 +55,7 @@ void OverlayText(const char* fmt, ...)
     va_end(args);
 }
 
-static void KeyBindingOverlay()
+static void InfoOverlay()
 {
     // Place Top-left
     const float          PAD       = 10.0f;
@@ -79,6 +81,12 @@ static void KeyBindingOverlay()
         ImGui::Separator();
         ImVec2 PreEditPos = g->PlatformImeData.InputPos;
         ImGui::Text("PreEdit Pos: %.f, %.f", PreEditPos.x, PreEditPos.y);
+        ImGui::Text("InputMode: %s", Mode == IngameIME::InputMode::Native ? "Native" : "AlphaNumeric");
+        ImGui::Text("LastModeChange: %.f", LastModeChange);
+        if (MainContext::Main.InputCtx && MainContext::Main.InputCtx->getActivated())
+            ImGui::Text("Activated: %s", "true");
+        else
+            ImGui::Text("Activated: %s", "false");
     }
     ImGui::End();
 }
@@ -158,6 +166,32 @@ void RenderCandidateList()
     }
 }
 
+void RenderInputMode()
+{
+    // Incase overlap
+    if (!PreEditCtx && glfwGetTime() - LastModeChange < AutoHideDelay)
+    {
+        ImVec2 PreEditPos = g->PlatformImeData.InputPos;
+        ImGui::SetNextWindowPos(PreEditPos);
+
+        if (ImGui::Begin("InputMode",
+                         NULL,
+                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration
+                             | ImGuiWindowFlags_NoFocusOnAppearing))
+        {
+            if (Mode == IngameIME::InputMode::Native)
+                // Native Mode
+                OverlayText("N");
+            else
+                // AlphaNumeric Mode
+                OverlayText("A");
+
+            ImGui::BringWindowToDisplayFront(g->CurrentWindow);
+        }
+        ImGui::End();
+    }
+}
+
 void UpdatePreEditRect()
 {
     if (MainContext::Main.InputCtx)
@@ -226,7 +260,6 @@ void IngameIME_Install_Callbacks()
             Mode           = mode;
             LastModeChange = glfwGetTime();
         });
-    inputCtx->setActivated(true);
 }
 
 void IngameIME_API_Selector()
@@ -288,17 +321,29 @@ void IngameIME_Test()
     {
         IngameIME_API_Selector();
 
-        static char text[1024 * 16];
+        static char text1[1024 * 8];
+        ImGui::InputTextMultiline("##source1",
+                                  text1,
+                                  IM_ARRAYSIZE(text1),
+                                  ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8),
+                                  NULL);
+        bool focused = ImGui::IsItemFocused();
 
-        static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
-        ImGui::InputTextMultiline("##source",
-                                  text,
-                                  IM_ARRAYSIZE(text),
-                                  ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16),
-                                  flags);
+        static char text2[1024 * 8];
+        ImGui::InputTextMultiline("##source2",
+                                  text2,
+                                  IM_ARRAYSIZE(text2),
+                                  ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8),
+                                  NULL);
+        focused |= ImGui::IsItemFocused();
+
+        if (MainContext::Main.InputCtx && MainContext::Main.InputCtx->getActivated() != focused)
+            MainContext::Main.InputCtx->setActivated(focused);
+
         UpdatePreEditRect();
         RenderPreEdit();
         RenderCandidateList();
+        RenderInputMode();
     }
     ImGui::End();
 }
@@ -345,7 +390,7 @@ void Renderer::newFrame()
     if (showDemo) ImGui::ShowDemoWindow(&showDemo);
     if (showDebugger) ImGui::ShowMetricsWindow(&showDebugger);
 
-    KeyBindingOverlay();
+    InfoOverlay();
     IngameIME_Test();
 
     ImGui::Render();
