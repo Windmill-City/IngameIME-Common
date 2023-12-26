@@ -30,7 +30,7 @@ bool ResourceLocation::operator<(const ResourceLocation& b) const noexcept
 std::string ResourceLocation::getDomain(const std::string& key)
 {
     auto i = key.find_first_of(DOMAIN_SEPARATOR);
-    if (i < 0) throw std::invalid_argument("ResourceKey missing domain");
+    if (i < 0) throw std::invalid_argument("ResourceKey miss domain");
     auto domain = key.substr(0, i);
     return domain;
 }
@@ -38,7 +38,7 @@ std::string ResourceLocation::getDomain(const std::string& key)
 std::string ResourceLocation::getPath(const std::string& key)
 {
     auto i = key.find_first_of(DOMAIN_SEPARATOR);
-    if (i < 0) throw std::invalid_argument("ResourceKey missing domain");
+    if (i < 0) throw std::invalid_argument("ResourceKey miss domain");
     auto path = key.substr(i + 1);
     return path;
 }

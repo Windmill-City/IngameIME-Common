@@ -1,13 +1,19 @@
 #include <cassert>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
-
-#include "Main.hpp"
 
 #include <Windows.h>
 
+#include "Main.hpp"
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+MainContext MainContext::Main = MainContext();
 
 int main()
 {
@@ -78,10 +84,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_F11 && action == GLFW_PRESS) MainContext::Main.toggleFullscreen();
 }
 
-MainContext MainContext::Main = MainContext();
-
 void MainContext::setup()
 {
+    HWND hWnd = glfwGetWin32Window(Window);
+    // InputCtx  = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::TextServiceFramework);
 }
 
 void MainContext::centerWindow()

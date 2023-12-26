@@ -163,4 +163,13 @@ class InputContext
     virtual void        setFullScreen(const bool fullscreen)    = 0;
     virtual bool        getFullScreen() const                   = 0;
 };
+
+#ifdef _WINDOWS_
+enum class API
+{
+    TextServiceFramework,
+    Imm32
+};
+InputContext* CreateInputContextWin32(HWND hWnd, API api);
+#endif
 } // namespace IngameIME

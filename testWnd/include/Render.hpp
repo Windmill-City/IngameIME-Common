@@ -7,7 +7,6 @@ struct Renderer
 {
     Renderer();
     ~Renderer();
-    void newFrame();
-
     void setup();
+    void newFrame();
 };
