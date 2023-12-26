@@ -5,6 +5,9 @@
 
 struct Renderer
 {
+    bool showDemo     = false;
+    bool showDebugger = false;
+
     Renderer();
     ~Renderer();
     void setup();

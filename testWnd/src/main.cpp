@@ -3,12 +3,7 @@
 #include <exception>
 #include <iostream>
 
-#include <Windows.h>
-
 #include "Main.hpp"
-
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -80,14 +75,20 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    // Esc to exit
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
+    // F11 - Toggle fullscreen
     if (key == GLFW_KEY_F11 && action == GLFW_PRESS) MainContext::Main.toggleFullscreen();
+    // F12 - Toggle Debugger
+    if (key == GLFW_KEY_F12 && action == GLFW_PRESS)
+        MainContext::Main.Render.showDebugger = !MainContext::Main.Render.showDebugger;
+    // F7 - Toggle Demo
+    if (key == GLFW_KEY_F7 && action == GLFW_PRESS)
+        MainContext::Main.Render.showDemo = !MainContext::Main.Render.showDemo;
 }
 
 void MainContext::setup()
 {
-    HWND hWnd = glfwGetWin32Window(Window);
-    // InputCtx  = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::TextServiceFramework);
 }
 
 void MainContext::centerWindow()
@@ -119,4 +120,6 @@ void MainContext::toggleFullscreen()
         glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
         centerWindow();
     }
+
+    if (InputCtx) InputCtx->setFullScreen(isFullscreen);
 }
