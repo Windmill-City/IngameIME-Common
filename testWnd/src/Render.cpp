@@ -6,8 +6,10 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+#ifdef _WINDOWS_
+  #define GLFW_EXPOSE_NATIVE_WIN32
+  #include <GLFW/glfw3native.h>
+#endif
 
 #include "Main.hpp"
 
@@ -236,7 +238,8 @@ void IngameIME_Install_Callbacks()
                 CandidateListCtx = nullptr;
         });
     /**
-     * @brief Receive the input mode change event, and show an indicator over the TextEdit
+     * @brief Receive the input mode change event, and show an indicator over the
+     * TextEdit
      *
      */
     inputCtx->IngameIME::InputModeCallbackHolder::setCallback(
@@ -257,14 +260,15 @@ void IngameIME_API_Selector()
 
     static int ActiveAPI   = 0;
     static int SelectedAPI = 0;
-    if (ImGui::BeginCombo("Choose API", items[SelectedAPI], NULL))
+    if (ImGui::BeginCombo("Choose API", items[SelectedAPI], 0))
     {
         for (int i = 0; i < IM_ARRAYSIZE(items); i++)
         {
             const bool is_selected = (SelectedAPI == i);
             if (ImGui::Selectable(items[i], is_selected)) SelectedAPI = i;
 
-            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            // Set the initial focus when opening the combo (scrolling + keyboard
+            // navigation focus)
             if (is_selected) ImGui::SetItemDefaultFocus();
         }
         ImGui::EndCombo();
@@ -287,16 +291,24 @@ void IngameIME_API_Selector()
         MainContext::Main.setup();
         isWindowValid = false;
 
+#ifdef _WINDOWS_
         HWND hWnd = glfwGetWin32Window(MainContext::Main.Window);
+#endif
 
         // Enable new API
         switch (SelectedAPI)
         {
         case 0: break;
         case 1:
+#ifdef _WINDOWS_
             MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::TextServiceFramework);
+#endif
             break;
-        case 2: MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::Imm32); break;
+        case 2:
+#ifdef _WINDOWS_
+            MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::Imm32);
+#endif
+            break;
         }
 
         // Register callbacks
@@ -320,7 +332,7 @@ void IngameIME_Test()
                                   text1,
                                   IM_ARRAYSIZE(text1),
                                   ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8),
-                                  NULL);
+                                  0);
         bool focused = ImGui::IsItemFocused();
 
         static char text2[1024 * 8];
@@ -328,7 +340,7 @@ void IngameIME_Test()
                                   text2,
                                   IM_ARRAYSIZE(text2),
                                   ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8),
-                                  NULL);
+                                  0);
         focused |= ImGui::IsItemFocused();
 
         if (MainContext::Main.InputCtx && MainContext::Main.InputCtx->getActivated() != focused)

@@ -90,30 +90,22 @@ void MainContext::setup()
     configFullscreen();
 }
 
-void MainContext::centerWindow()
-{
-    const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    int                sw        = videoMode->width;
-    int                sh        = videoMode->height;
-    int                w, h;
-    glfwGetWindowSize(Window, &w, &h);
-    glfwSetWindowPos(Window, (sw - w) / 2, (sh - h) / 2);
-}
-
 void MainContext::configFullscreen()
 {
+    GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
+    int                sw      = mode->width;
+    int                sh      = mode->height;
     if (isFullscreen)
     {
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-        GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
-        glfwSetWindowMonitor(Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+        glfwSetWindowMonitor(Window, monitor, 0, 0, sw, sh, mode->refreshRate);
     }
     else
     {
+        int w = 800, h = 600;
         glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-        glfwSetWindowMonitor(Window, NULL, 0, 0, 800, 600, GLFW_DONT_CARE);
-        centerWindow();
+        glfwSetWindowMonitor(Window, NULL, (sw - w) / 2, (sh - h) / 2, w, h, GLFW_DONT_CARE);
     }
 }
 

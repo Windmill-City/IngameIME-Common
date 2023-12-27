@@ -33,9 +33,25 @@ target_link_libraries(imgui PUBLIC glfw glad)
 aux_source_directory(src SRC_LIST)
 
 # ####################################
+# Embed Assets Build Tools
+# ####################################
+add_executable(ResourceBuilder EXCLUDE_FROM_ALL builder/ResourceBuilder.cpp)
+target_include_directories(ResourceBuilder PRIVATE include)
+
+# Build embed assets - Rebuild manually when folder 'embed' has changed
+add_executable(bin2c builder/bin2c.c)
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/indexAssets.c ${CMAKE_BINARY_DIR}/blockAssets.c
+    COMMAND $<TARGET_FILE:ResourceBuilder> -e ${CMAKE_CURRENT_SOURCE_DIR}/embed -i indexAssets -b blockAssets
+    COMMAND $<TARGET_FILE:bin2c> -i indexAssets -o indexAssets.c -a _embed_indexAssets
+    COMMAND $<TARGET_FILE:bin2c> -i blockAssets -o blockAssets.c -a _embed_blockAssets
+    DEPENDS ${CMAKE_BINARY_DIR}/indexAssets ${CMAKE_BINARY_DIR}/blockAssets
+)
+
+# ####################################
 # Target
 # ####################################
-add_executable(IngameIME-Test ${SRC_LIST})
+add_executable(IngameIME-Test ${SRC_LIST} ${CMAKE_BINARY_DIR}/indexAssets.c ${CMAKE_BINARY_DIR}/blockAssets.c)
 target_include_directories(IngameIME-Test PRIVATE include)
 target_link_libraries(IngameIME-Test PRIVATE glfw glad imgui IngameIME_Static)
 
@@ -51,35 +67,6 @@ if(WIN32)
         LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup"
     )
 endif(WIN32)
-
-# ####################################
-# Embed Assets Build Tools
-# ####################################
-add_executable(ResourceBuilder EXCLUDE_FROM_ALL builder/ResourceBuilder.cpp)
-target_include_directories(ResourceBuilder PRIVATE include)
-
-# Build embed assets
-if(MSVC)
-    add_executable(MSVC_bin2obj builder/MSVC_bin2obj.cpp)
-    target_include_directories(MSVC_bin2obj PRIVATE include)
-
-    add_custom_target(BuildEmbed
-        COMMAND $<TARGET_FILE:ResourceBuilder> -e ${CMAKE_CURRENT_SOURCE_DIR}/embed -i indexAssets -b blockAssets
-        COMMAND $<TARGET_FILE:MSVC_bin2obj> -b indexAssets -o indexAssets.obj -s _embed_indexAssets
-        COMMAND $<TARGET_FILE:MSVC_bin2obj> -b blockAssets -o blockAssets.obj -s _embed_blockAssets
-    )
-    add_dependencies(BuildEmbed ResourceBuilder MSVC_bin2obj)
-else(MSVC)
-    add_custom_target(BuildEmbed
-        COMMAND $<TARGET_FILE:ResourceBuilder> -e ${CMAKE_CURRENT_SOURCE_DIR}/embed -i indexAssets -b blockAssets
-
-        # objcopy .... todo
-    )
-    add_dependencies(BuildEmbed ResourceBuilder)
-endif(MSVC)
-
-target_link_libraries(IngameIME-Test PRIVATE ${CMAKE_BINARY_DIR}/indexAssets ${CMAKE_BINARY_DIR}/blockAssets)
-add_dependencies(IngameIME-Test BuildEmbed)
 
 # ####################################
 # Test
