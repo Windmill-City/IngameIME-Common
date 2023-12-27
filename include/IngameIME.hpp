@@ -160,8 +160,6 @@ class InputContext
     virtual PreEditRect getPreEditRect()                        = 0;
     virtual void        setActivated(const bool activated)      = 0;
     virtual bool        getActivated() const                    = 0;
-    virtual void        setFullScreen(const bool fullscreen)    = 0;
-    virtual bool        getFullScreen() const                   = 0;
 };
 
 #ifdef _WINDOWS_

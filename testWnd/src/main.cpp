@@ -115,8 +115,6 @@ void MainContext::configFullscreen()
         glfwSetWindowMonitor(Window, NULL, 0, 0, 800, 600, GLFW_DONT_CARE);
         centerWindow();
     }
-
-    if (InputCtx) InputCtx->setFullScreen(isFullscreen);
 }
 
 void MainContext::toggleFullscreen()

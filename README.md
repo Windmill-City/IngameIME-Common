@@ -74,12 +74,6 @@ MainContext::Main.InputCtx->setPreEditRect(Rect);
 MainContext::Main.InputCtx->setActivated(true/false);
 ```
 
-### Fullscreen
-
-```c++
-MainContext::Main.InputCtx->setFullscreen(true/false);
-```
-
 ## Bindings
 
 Use [SWIG](https://github.com/swig/swig) to generate binding files
