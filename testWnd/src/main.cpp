@@ -84,7 +84,7 @@ void MainContext::setup()
     glfwSwapInterval(1);
     // GLAD Init End
     MainContext::Main.Render.setup();
-    configFullscreen();
+    configScreen();
 }
 
 void MainContext::destroy()
@@ -93,7 +93,7 @@ void MainContext::destroy()
     glfwTerminate();
 }
 
-void MainContext::configFullscreen()
+void MainContext::configScreen()
 {
     GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
@@ -115,5 +115,5 @@ void MainContext::configFullscreen()
 void MainContext::toggleFullscreen()
 {
     isFullscreen = !isFullscreen;
-    configFullscreen();
+    configScreen();
 }
