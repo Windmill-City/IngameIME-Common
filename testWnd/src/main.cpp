@@ -75,7 +75,6 @@ void MainContext::setup()
     }
     glfwMakeContextCurrent(Window);
     glfwSetKeyCallback(Window, key_callback);
-    configFullscreen();
     // Create Window End
 
     // GLAD Init Start
@@ -88,18 +87,16 @@ void MainContext::setup()
     glfwSwapInterval(1);
     // GLAD Init End
     MainContext::Main.Render.setup();
+    configFullscreen();
 }
 
 void MainContext::centerWindow()
 {
     const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-    int sw = videoMode->width;
-    int sh = videoMode->height;
-
-    int w, h;
+    int                sw        = videoMode->width;
+    int                sh        = videoMode->height;
+    int                w, h;
     glfwGetWindowSize(Window, &w, &h);
-
     glfwSetWindowPos(Window, (sw - w) / 2, (sh - h) / 2);
 }
 
@@ -114,8 +111,8 @@ void MainContext::configFullscreen()
     }
     else
     {
-        glfwSetWindowMonitor(Window, NULL, 0, 0, 800, 600, GLFW_DONT_CARE);
         glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+        glfwSetWindowMonitor(Window, NULL, 0, 0, 800, 600, GLFW_DONT_CARE);
         centerWindow();
     }
 
