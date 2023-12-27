@@ -6,6 +6,8 @@ Common interface of IngameIME
 
 Example: <https://github.com/Windmill-City/IngameIME-Common/blob/main/testWnd/src/Render.cpp>
 
+![ImgameIME-Test](docs/IngameIME-Test.gif)
+
 ### Initialize
 
 #### Win32
