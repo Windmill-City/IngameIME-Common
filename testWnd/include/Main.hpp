@@ -16,5 +16,6 @@ struct MainContext
 
     void setup();
     void centerWindow();
+    void configFullscreen();
     void toggleFullscreen();
 };

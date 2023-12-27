@@ -5,6 +5,8 @@
 
 #include "Main.hpp"
 
+#include "imgui.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
@@ -13,46 +15,10 @@ MainContext MainContext::Main = MainContext();
 int main()
 {
     setlocale(LC_ALL, ".UTF-8");
-    // GLFW Init Start
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#if defined(__APPLE__)
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-    // GLFW Init End
-
-    // Create Window Start
-    GLFWwindow* window = glfwCreateWindow(800, 600, "IngameIME-Test", NULL, NULL);
-    if (!window)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-
-        std::exit(EXIT_FAILURE);
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetKeyCallback(window, key_callback);
-    // Create Window End
-
-    // GLAD Init Start
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSwapInterval(1);
-    // GLAD Init End
-
-    MainContext::Main.Window = window;
     MainContext::Main.setup();
-    MainContext::Main.Render.setup();
-    MainContext::Main.centerWindow();
 
     // Event Loop
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(MainContext::Main.Window))
     {
         // Background color
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -60,7 +26,7 @@ int main()
 
         MainContext::Main.Render.newFrame();
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(MainContext::Main.Window);
         glfwPollEvents();
     }
 
@@ -89,6 +55,39 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void MainContext::setup()
 {
+    // GLFW Init Start
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#if defined(__APPLE__)
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+    // GLFW Init End
+    // Create Window Start
+    Window = glfwCreateWindow(800, 600, "IngameIME-Test", NULL, NULL);
+    if (!Window)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+
+        std::exit(EXIT_FAILURE);
+    }
+    glfwMakeContextCurrent(Window);
+    glfwSetKeyCallback(Window, key_callback);
+    configFullscreen();
+    // Create Window End
+
+    // GLAD Init Start
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+    glfwSetFramebufferSizeCallback(Window, framebuffer_size_callback);
+    glfwSwapInterval(1);
+    // GLAD Init End
+    MainContext::Main.Render.setup();
 }
 
 void MainContext::centerWindow()
@@ -104,9 +103,8 @@ void MainContext::centerWindow()
     glfwSetWindowPos(Window, (sw - w) / 2, (sh - h) / 2);
 }
 
-void MainContext::toggleFullscreen()
+void MainContext::configFullscreen()
 {
-    isFullscreen = !isFullscreen;
     if (isFullscreen)
     {
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
@@ -122,4 +120,10 @@ void MainContext::toggleFullscreen()
     }
 
     if (InputCtx) InputCtx->setFullScreen(isFullscreen);
+}
+
+void MainContext::toggleFullscreen()
+{
+    isFullscreen = !isFullscreen;
+    configFullscreen();
 }

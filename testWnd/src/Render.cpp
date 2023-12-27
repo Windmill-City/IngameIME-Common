@@ -18,6 +18,7 @@ static IngameIME::InputMode             Mode           = IngameIME::InputMode::A
 static double                           LastModeChange = 0;
 // Config how long the InputMode displays
 static double                           AutoHideDelay  = 3;
+static bool                             isWindowValid  = true;
 
 void OverlayTextV(const char* fmt, va_list args)
 {
@@ -58,10 +59,9 @@ void OverlayText(const char* fmt, ...)
 static void InfoOverlay()
 {
     // Place Top-left
-    const float          PAD       = 10.0f;
-    const ImGuiViewport* viewport  = ImGui::GetMainViewport();
-    ImVec2               work_pos  = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
-    ImVec2               work_size = viewport->WorkSize;
+    const float          PAD      = 10.0f;
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImVec2               work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
     ImVec2               window_pos;
     window_pos.x = work_pos.x + PAD;
     window_pos.y = work_pos.y + PAD;
@@ -295,6 +295,14 @@ void IngameIME_API_Selector()
             MainContext::Main.InputCtx = nullptr;
         }
 
+        // Destroy old window
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+        glfwTerminate();
+        MainContext::Main.setup();
+        isWindowValid = false;
+
         HWND hWnd = glfwGetWin32Window(MainContext::Main.Window);
 
         // Enable new API
@@ -321,6 +329,7 @@ void IngameIME_Test()
     if (ImGui::Begin("IngameIME Test", NULL, window_flags))
     {
         IngameIME_API_Selector();
+        if (!isWindowValid) return;
 
         static char text1[1024 * 8];
         ImGui::InputTextMultiline("##source1",
@@ -341,12 +350,19 @@ void IngameIME_Test()
         if (MainContext::Main.InputCtx && MainContext::Main.InputCtx->getActivated() != focused)
             MainContext::Main.InputCtx->setActivated(focused);
 
-        UpdatePreEditRect();
-        RenderPreEdit();
-        RenderCandidateList();
-        RenderInputMode();
+        // Center window
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        auto                 pos      = viewport->GetWorkCenter();
+        pos.x -= ImGui::GetWindowWidth() / 2;
+        pos.y -= ImGui::GetWindowHeight() / 2;
+        ImGui::SetWindowPos(pos);
     }
     ImGui::End();
+
+    UpdatePreEditRect();
+    RenderPreEdit();
+    RenderCandidateList();
+    RenderInputMode();
 }
 
 Renderer::Renderer()
@@ -366,7 +382,6 @@ void Renderer::setup()
     IMGUI_CHECKVERSION();
     g           = ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     ImGui_ImplGlfw_InitForOpenGL(MainContext::Main.Window, true);
     ImGui_ImplOpenGL3_Init();
@@ -383,6 +398,7 @@ void Renderer::setup()
 
 void Renderer::newFrame()
 {
+    isWindowValid = true;
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -393,6 +409,7 @@ void Renderer::newFrame()
 
     InfoOverlay();
     IngameIME_Test();
+    if (!isWindowValid) return;
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
