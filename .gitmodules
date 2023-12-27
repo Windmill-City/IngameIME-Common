@@ -1,9 +1,6 @@
 [submodule "testWnd/glfw"]
 	path = testWnd/glfw
 	url = git@github.com:glfw/glfw.git
-[submodule "testWnd/nuklear/Nuklear"]
-	path = testWnd/nuklear/Nuklear
-	url = git@github.com:Windmill-City/Nuklear.git
 [submodule "testWnd/ctest/gtest"]
 	path = testWnd/ctest/gtest
 	url = git@github.com:google/googletest.git
