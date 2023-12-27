@@ -1,29 +1,9 @@
 #include "Render.hpp"
-
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_internal.h"
-
-#ifdef _WINDOWS_
-  #define GLFW_EXPOSE_NATIVE_WIN32
-  #include <GLFW/glfw3native.h>
-#endif
+#include "IngameIMEImpl.hpp"
 
 #include "Main.hpp"
 
-static ImGuiContext*                    g;
-static IngameIME::PreEditContext*       PreEditCtx;
-static IngameIME::CandidateListContext* CandidateListCtx;
-static IngameIME::InputMode             Mode           = IngameIME::InputMode::AlphaNumeric;
-static double                           LastModeChange = 0;
-// Config how long the InputMode displays
-static double                           AutoHideDelay  = 3;
-static int                              ActiveAPI      = 0;
-static int                              SelectedAPI    = 0;
-
-void OverlayTextV(const char* fmt, va_list args)
+void drawTextV(const char* fmt, va_list args)
 {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) return;
@@ -51,304 +31,103 @@ void OverlayTextV(const char* fmt, va_list args)
                              ImVec2(0.0f, 0.0f));
 }
 
-void OverlayText(const char* fmt, ...)
+void Renderer::drawText(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    OverlayTextV(fmt, args);
+    drawTextV(fmt, args);
     va_end(args);
 }
 
-static void InfoOverlay()
+void Renderer::drawPreEdit(IngameIME::PreEditContext* ctx)
 {
-    // Place Top-left
-    const float          PAD      = 10.0f;
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImVec2               work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
-    ImVec2               window_pos;
-    window_pos.x = work_pos.x + PAD;
-    window_pos.y = work_pos.y + PAD;
-    ImGui::SetNextWindowPos(window_pos);
-    ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-
-    if (ImGui::Begin("Overlay",
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {0, 0});
+    ImVec2 PreEditPos = g->PlatformImeData.InputPos;
+    ImGui::SetNextWindowPos(PreEditPos);
+    if (ImGui::Begin("PreEdit",
                      NULL,
-                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration))
+                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration
+                         | ImGuiWindowFlags_NoFocusOnAppearing))
     {
-        ImGui::Text("KeyBinding");
-        ImGui::Separator();
-        ImGui::Text("F7  - Toggle Demo");
-        ImGui::Text("F11 - Toggle Fullscreen");
-        ImGui::Text("F12 - Toggle Debugger");
+        // Before selected
+        std::string bef_selected = ctx->content.substr(0, ctx->selStart);
+        drawText(bef_selected.c_str());
 
-        ImGui::Separator();
-        ImVec2 PreEditPos = g->PlatformImeData.InputPos;
-        ImGui::Text("PreEdit Pos: %.f, %.f", PreEditPos.x, PreEditPos.y);
-        ImGui::Text("InputMode: %s", Mode == IngameIME::InputMode::Native ? "Native" : "AlphaNumeric");
-        ImGui::Text("LastModeChange: %.f", LastModeChange);
-        if (MainContext::Main.InputCtx && MainContext::Main.InputCtx->getActivated())
-            ImGui::Text("Activated: %s", "true");
+        //  Selected Part
+        std::string selected = ctx->content.substr(ctx->selStart, ctx->selEnd - ctx->selStart);
+        if (selected.empty()) selected = " "; // Cursor
+
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.600f, 0.600f, 0.600f, 1.000f));
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.000f, 0.000f, 0.000f, 1.000f));
+
+        ImGui::SameLine();
+        drawText(selected.c_str());
+
+        ImGui::PopStyleColor(2);
+
+        // After selected
+        std::string aft_selected = ctx->content.substr(ctx->selEnd);
+        ImGui::SameLine();
+        drawText(aft_selected.c_str());
+
+        ImGui::BringWindowToDisplayFront(g->CurrentWindow);
+    }
+    ImGui::End();
+    ImGui::PopStyleVar(2);
+}
+
+void Renderer::drawCandidateList(IngameIME::CandidateListContext* ctx)
+{
+    ImVec2 CandidateListPos = g->PlatformImeData.InputPos;
+    CandidateListPos.y += g->PlatformImeData.InputLineHeight + 5;
+    ImGui::SetNextWindowPos(CandidateListPos);
+    if (ImGui::Begin("CandidateList",
+                     NULL,
+                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration
+                         | ImGuiWindowFlags_NoFocusOnAppearing))
+    {
+        int i = 0;
+        for (std::string& s : ctx->candidates)
+        {
+            bool selected = i++ == ctx->selection;
+            if (selected)
+            {
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.600f, 0.600f, 0.600f, 1.000f));
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.000f, 0.000f, 0.000f, 1.000f));
+                drawText("%d. %s", i, s.c_str());
+                ImGui::PopStyleColor(2);
+            }
+            else
+                ImGui::Text("%d. %s", i, s.c_str());
+            ImGui::SameLine();
+        }
+        ImGui::BringWindowToDisplayFront(g->CurrentWindow);
+    }
+    ImGui::End();
+}
+
+void Renderer::drawInputMode(IngameIME::InputMode mode)
+{
+    ImVec2 PreEditPos = g->PlatformImeData.InputPos;
+    ImGui::SetNextWindowPos(PreEditPos);
+    ImGui::SetNextWindowBgAlpha(0.80f); // Transparent background
+
+    if (ImGui::Begin("InputMode",
+                     NULL,
+                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration
+                         | ImGuiWindowFlags_NoFocusOnAppearing))
+    {
+        if (mode == IngameIME::InputMode::Native)
+            // Native Mode
+            ImGui::Text("N");
         else
-            ImGui::Text("Activated: %s", "false");
+            // AlphaNumeric Mode
+            ImGui::Text("A");
+
+        ImGui::BringWindowToDisplayFront(g->CurrentWindow);
     }
     ImGui::End();
-}
-
-void RenderPreEdit()
-{
-    if (PreEditCtx)
-    {
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {0, 0});
-        ImVec2 PreEditPos = g->PlatformImeData.InputPos;
-        ImGui::SetNextWindowPos(PreEditPos);
-        if (ImGui::Begin("PreEdit",
-                         NULL,
-                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration
-                             | ImGuiWindowFlags_NoFocusOnAppearing))
-        {
-            // Before selected
-            std::string bef_selected = PreEditCtx->content.substr(0, PreEditCtx->selStart);
-            OverlayText(bef_selected.c_str());
-
-            //  Selected Part
-            std::string selected =
-                PreEditCtx->content.substr(PreEditCtx->selStart, PreEditCtx->selEnd - PreEditCtx->selStart);
-            if (selected.empty()) selected = " "; // Cursor
-
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.600f, 0.600f, 0.600f, 1.000f));
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.000f, 0.000f, 0.000f, 1.000f));
-
-            ImGui::SameLine();
-            OverlayText(selected.c_str());
-
-            ImGui::PopStyleColor(2);
-
-            // After selected
-            std::string aft_selected = PreEditCtx->content.substr(PreEditCtx->selEnd);
-            ImGui::SameLine();
-            OverlayText(aft_selected.c_str());
-
-            ImGui::BringWindowToDisplayFront(g->CurrentWindow);
-        }
-        ImGui::End();
-        ImGui::PopStyleVar(2);
-    }
-}
-
-void RenderCandidateList()
-{
-    if (CandidateListCtx)
-    {
-        ImVec2 CandidateListPos = g->PlatformImeData.InputPos;
-        CandidateListPos.y += g->PlatformImeData.InputLineHeight + 5;
-        ImGui::SetNextWindowPos(CandidateListPos);
-        if (ImGui::Begin("CandidateList",
-                         NULL,
-                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration
-                             | ImGuiWindowFlags_NoFocusOnAppearing))
-        {
-            int i = 0;
-            for (std::string& s : CandidateListCtx->candidates)
-            {
-                bool selected = i++ == CandidateListCtx->selection;
-                if (selected)
-                {
-                    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.600f, 0.600f, 0.600f, 1.000f));
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.000f, 0.000f, 0.000f, 1.000f));
-                    OverlayText("%d. %s", i, s.c_str());
-                    ImGui::PopStyleColor(2);
-                }
-                else
-                    ImGui::Text("%d. %s", i, s.c_str());
-                ImGui::SameLine();
-            }
-            ImGui::BringWindowToDisplayFront(g->CurrentWindow);
-        }
-        ImGui::End();
-    }
-}
-
-void RenderInputMode()
-{
-    // Incase overlap
-    if (!PreEditCtx && glfwGetTime() - LastModeChange < AutoHideDelay)
-    {
-        ImVec2 PreEditPos = g->PlatformImeData.InputPos;
-        ImGui::SetNextWindowPos(PreEditPos);
-        ImGui::SetNextWindowBgAlpha(0.80f); // Transparent background
-
-        if (ImGui::Begin("InputMode",
-                         NULL,
-                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration
-                             | ImGuiWindowFlags_NoFocusOnAppearing))
-        {
-            if (Mode == IngameIME::InputMode::Native)
-                // Native Mode
-                ImGui::Text("N");
-            else
-                // AlphaNumeric Mode
-                ImGui::Text("A");
-
-            ImGui::BringWindowToDisplayFront(g->CurrentWindow);
-        }
-        ImGui::End();
-    }
-}
-
-void IngameIME_Install_Callbacks()
-{
-    auto inputCtx = MainContext::Main.InputCtx;
-    /**
-     * @brief Receive PreEdit information and render it over the TextEdit
-     *
-     */
-    inputCtx->IngameIME::PreEditCallbackHolder::setCallback(
-        [](const IngameIME::CompositionState state, const IngameIME::PreEditContext* ctx)
-        {
-            static IngameIME::PreEditContext Internal;
-            if (ctx)
-            {
-                Internal   = *ctx;
-                PreEditCtx = &Internal;
-            }
-            else
-                PreEditCtx = nullptr;
-        });
-
-    /**
-     * @brief Receive the converted text and insert it into the TextEdit
-     *
-     */
-    inputCtx->IngameIME::CommitCallbackHolder::setCallback([](std::string commit)
-                                                           { ImGui::GetIO().AddInputCharactersUTF8(commit.c_str()); });
-    /**
-     * @brief Receive the CandidateList and draw it over the TextEdit
-     *
-     */
-    inputCtx->IngameIME::CandidateListCallbackHolder::setCallback(
-        [](const IngameIME::CandidateListState state, const IngameIME::CandidateListContext* ctx)
-        {
-            static IngameIME::CandidateListContext Internal;
-            if (ctx)
-            {
-                Internal         = *ctx;
-                CandidateListCtx = &Internal;
-            }
-            else
-                CandidateListCtx = nullptr;
-        });
-    /**
-     * @brief Receive the input mode change event, and show an indicator over the
-     * TextEdit
-     *
-     */
-    inputCtx->IngameIME::InputModeCallbackHolder::setCallback(
-        [](IngameIME::InputMode mode)
-        {
-            Mode           = mode;
-            LastModeChange = glfwGetTime();
-        });
-}
-
-void IngameIME_API_Selector()
-{
-    const char* items[] = {
-        "GLFW-Default",
-        "TextServiceFramework",
-        "Imm32",
-    };
-
-    if (ImGui::BeginCombo("Choose API", items[SelectedAPI], 0))
-    {
-        for (int i = 0; i < IM_ARRAYSIZE(items); i++)
-        {
-            const bool is_selected = (SelectedAPI == i);
-            if (ImGui::Selectable(items[i], is_selected)) SelectedAPI = i;
-
-            // Set the initial focus when opening the combo (scrolling + keyboard
-            // navigation focus)
-            if (is_selected) ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
-}
-
-void IngameIME_Update_API()
-{
-    if (ActiveAPI != SelectedAPI)
-    {
-        // Disable old api
-        if (MainContext::Main.InputCtx)
-        {
-            delete MainContext::Main.InputCtx;
-            MainContext::Main.InputCtx = nullptr;
-        }
-
-        // Destroy old window
-        MainContext::Main.destroy();
-        MainContext::Main.setup();
-
-#ifdef _WINDOWS_
-        HWND hWnd = glfwGetWin32Window(MainContext::Main.Window);
-
-        // Enable new API
-        switch (SelectedAPI)
-        {
-        case 0: break;
-        case 1:
-            MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::TextServiceFramework);
-            break;
-        case 2: MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::Imm32); break;
-        }
-#endif
-
-        // Register callbacks
-        if (SelectedAPI > 0) IngameIME_Install_Callbacks();
-        ActiveAPI = SelectedAPI;
-    }
-}
-
-void IngameIME_Test()
-{
-    ImGuiIO&         io           = ImGui::GetIO();
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize;
-
-    if (ImGui::Begin("IngameIME Test", NULL, window_flags))
-    {
-        IngameIME_API_Selector();
-
-        static char text1[1024 * 8];
-        ImGui::InputTextMultiline("##source1",
-                                  text1,
-                                  IM_ARRAYSIZE(text1),
-                                  ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8),
-                                  0);
-        bool focused = ImGui::IsItemFocused();
-
-        static char text2[1024 * 8];
-        ImGui::InputTextMultiline("##source2",
-                                  text2,
-                                  IM_ARRAYSIZE(text2),
-                                  ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 8),
-                                  0);
-        focused |= ImGui::IsItemFocused();
-
-        if (MainContext::Main.InputCtx && MainContext::Main.InputCtx->getActivated() != focused)
-            MainContext::Main.InputCtx->setActivated(focused);
-
-        // Center window
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        auto                 pos      = viewport->GetWorkCenter();
-        pos.x -= ImGui::GetWindowWidth() / 2;
-        pos.y -= ImGui::GetWindowHeight() / 2;
-        ImGui::SetWindowPos(pos);
-    }
-    ImGui::End();
-
-    RenderPreEdit();
-    RenderCandidateList();
-    RenderInputMode();
 }
 
 void Renderer::setup()
@@ -388,11 +167,11 @@ void Renderer::newFrame()
     if (showDemo) ImGui::ShowDemoWindow(&showDemo);
     if (showDebugger) ImGui::ShowMetricsWindow(&showDebugger);
 
-    InfoOverlay();
-    IngameIME_Test();
+    IngameIMEImpl::IME.drawOverlay();
+    IngameIMEImpl::IME.drawTestWindow();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-    IngameIME_Update_API();
+    IngameIMEImpl::IME.updateAPI();
 }

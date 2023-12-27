@@ -4,7 +4,7 @@ Common interface of IngameIME
 
 ## How to use
 
-Example: <https://github.com/Windmill-City/IngameIME-Common/blob/main/testWnd/src/Render.cpp>
+Example: <https://github.com/Windmill-City/IngameIME-Common/blob/main/testWnd/src/IngameIMEImpl.cpp>
 
 ![ImgameIME-Test](docs/IngameIME-Test.gif)
 
