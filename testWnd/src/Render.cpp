@@ -173,6 +173,7 @@ void RenderInputMode()
     {
         ImVec2 PreEditPos = g->PlatformImeData.InputPos;
         ImGui::SetNextWindowPos(PreEditPos);
+        ImGui::SetNextWindowBgAlpha(0.80f); // Transparent background
 
         if (ImGui::Begin("InputMode",
                          NULL,
@@ -181,10 +182,10 @@ void RenderInputMode()
         {
             if (Mode == IngameIME::InputMode::Native)
                 // Native Mode
-                OverlayText("N");
+                ImGui::Text("N");
             else
                 // AlphaNumeric Mode
-                OverlayText("A");
+                ImGui::Text("A");
 
             ImGui::BringWindowToDisplayFront(g->CurrentWindow);
         }
