@@ -193,22 +193,6 @@ void RenderInputMode()
     }
 }
 
-void UpdatePreEditRect()
-{
-    if (MainContext::Main.InputCtx)
-    {
-        ImVec2 PreEditPos = g->PlatformImeData.InputPos;
-        float  LineHeight = g->PlatformImeData.InputLineHeight + 5;
-
-        IngameIME::PreEditRect Rect;
-        Rect.x      = (int)PreEditPos.x;
-        Rect.y      = (int)PreEditPos.y;
-        Rect.height = (int)LineHeight;
-        Rect.width  = 1; // at least one pixel
-        MainContext::Main.InputCtx->setPreEditRect(Rect);
-    }
-}
-
 void IngameIME_Install_Callbacks()
 {
     auto inputCtx = MainContext::Main.InputCtx;
@@ -359,7 +343,6 @@ void IngameIME_Test()
     }
     ImGui::End();
 
-    UpdatePreEditRect();
     RenderPreEdit();
     RenderCandidateList();
     RenderInputMode();

@@ -19,53 +19,49 @@ MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME:
 MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::Imm32);
 ```
 
-### PreEdit & Commit & CandidateList
+### PreEdit & CandidateList
+
+This library is designed for fullscreen games, so you are responsible for rendering: `PreEdit`, `CandidateList` and `Input Mode Indicator`
 
 ```c++
-void IngameIME_Install_Callbacks()
-{
-    auto inputCtx = MainContext::Main.InputCtx;
-    /**
-     * @brief Receive PreEdit information and render it over the TextEdit
-     *
-     */
-    inputCtx->IngameIME::PreEditCallbackHolder::setCallback(
-        [](const IngameIME::CompositionState state, const IngameIME::PreEditContext* ctx)
-        {
-            //Render your preedit
-        });
+/**
+ * @brief Receive PreEdit information and render it over the TextEdit
+ *
+ */
+inputCtx->IngameIME::PreEditCallbackHolder::setCallback(
+    [](const IngameIME::CompositionState state, const IngameIME::PreEditContext* ctx)
+    {
+        //Render your preedit
+    });
 
-    /**
-     * @brief Receive the converted text and insert it into the TextEdit
-     *
-     */
-    inputCtx->IngameIME::CommitCallbackHolder::setCallback([](std::string commit)
-                                                           { ImGui::GetIO().AddInputCharactersUTF8(commit.c_str()); });
-    /**
-     * @brief Receive the CandidateList and draw it over the TextEdit
-     *
-     */
-    inputCtx->IngameIME::CandidateListCallbackHolder::setCallback(
-        [](const IngameIME::CandidateListState state, const IngameIME::CandidateListContext* ctx)
-        {
-            //render your candidate list
-        });
-    /**
-     * @brief Receive the input mode change event, and show an indicator over the TextEdit
-     *
-     */
-    inputCtx->IngameIME::InputModeCallbackHolder::setCallback(
-        [](IngameIME::InputMode mode)
-        {
-            //render your input mode indicator
-        });
-}
-```
+/**
+ * @brief Receive the CandidateList and draw it over the TextEdit
+ *
+ */
+inputCtx->IngameIME::CandidateListCallbackHolder::setCallback(
+    [](const IngameIME::CandidateListState state, const IngameIME::CandidateListContext* ctx)
+    {
+        //render your candidate list
+    });
 
-### Update PreEdit Rect
+/**
+ * @brief Receive the converted text and insert it into the TextEdit
+ *
+ */
+inputCtx->IngameIME::CommitCallbackHolder::setCallback([](std::string commit)
+    {
+        // Insert commit into your text edit
+    });
 
-```c++
-MainContext::Main.InputCtx->setPreEditRect(Rect);
+/**
+ * @brief Receive the input mode change event, and show an indicator over the TextEdit
+ *
+ */
+inputCtx->IngameIME::InputModeCallbackHolder::setCallback(
+    [](IngameIME::InputMode mode)
+    {
+        //render your input mode indicator
+    });
 ```
 
 ### Activate Input Method
