@@ -5,8 +5,6 @@
 
 #include "Main.hpp"
 
-#include "imgui.h"
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
@@ -30,7 +28,6 @@ int main()
         glfwPollEvents();
     }
 
-    glfwTerminate();
     std::exit(EXIT_SUCCESS);
 }
 
@@ -88,6 +85,12 @@ void MainContext::setup()
     // GLAD Init End
     MainContext::Main.Render.setup();
     configFullscreen();
+}
+
+void MainContext::destroy()
+{
+    Render.destroy();
+    glfwTerminate();
 }
 
 void MainContext::configFullscreen()

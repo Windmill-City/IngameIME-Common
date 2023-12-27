@@ -20,7 +20,8 @@ static IngameIME::InputMode             Mode           = IngameIME::InputMode::A
 static double                           LastModeChange = 0;
 // Config how long the InputMode displays
 static double                           AutoHideDelay  = 3;
-static bool                             isWindowValid  = true;
+static int                              ActiveAPI      = 0;
+static int                              SelectedAPI    = 0;
 
 void OverlayTextV(const char* fmt, va_list args)
 {
@@ -258,8 +259,6 @@ void IngameIME_API_Selector()
         "Imm32",
     };
 
-    static int ActiveAPI   = 0;
-    static int SelectedAPI = 0;
     if (ImGui::BeginCombo("Choose API", items[SelectedAPI], 0))
     {
         for (int i = 0; i < IM_ARRAYSIZE(items); i++)
@@ -273,7 +272,10 @@ void IngameIME_API_Selector()
         }
         ImGui::EndCombo();
     }
+}
 
+void IngameIME_Update_API()
+{
     if (ActiveAPI != SelectedAPI)
     {
         // Disable old api
@@ -284,32 +286,22 @@ void IngameIME_API_Selector()
         }
 
         // Destroy old window
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
-        glfwTerminate();
+        MainContext::Main.destroy();
         MainContext::Main.setup();
-        isWindowValid = false;
 
 #ifdef _WINDOWS_
         HWND hWnd = glfwGetWin32Window(MainContext::Main.Window);
-#endif
 
         // Enable new API
         switch (SelectedAPI)
         {
         case 0: break;
         case 1:
-#ifdef _WINDOWS_
             MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::TextServiceFramework);
-#endif
             break;
-        case 2:
-#ifdef _WINDOWS_
-            MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::Imm32);
-#endif
-            break;
+        case 2: MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::Imm32); break;
         }
+#endif
 
         // Register callbacks
         if (SelectedAPI > 0) IngameIME_Install_Callbacks();
@@ -325,7 +317,6 @@ void IngameIME_Test()
     if (ImGui::Begin("IngameIME Test", NULL, window_flags))
     {
         IngameIME_API_Selector();
-        if (!isWindowValid) return;
 
         static char text1[1024 * 8];
         ImGui::InputTextMultiline("##source1",
@@ -360,17 +351,6 @@ void IngameIME_Test()
     RenderInputMode();
 }
 
-Renderer::Renderer()
-{
-}
-
-Renderer::~Renderer()
-{
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-}
-
 void Renderer::setup()
 {
     // Setup Dear ImGui context
@@ -391,9 +371,15 @@ void Renderer::setup()
     io.Fonts->AddFontFromFileTTF("assets/fonts/unifont-15.1.04.otf", 16, &config, io.Fonts->GetGlyphRangesKorean());
 }
 
+void Renderer::destroy()
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+
 void Renderer::newFrame()
 {
-    isWindowValid = true;
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -404,8 +390,9 @@ void Renderer::newFrame()
 
     InfoOverlay();
     IngameIME_Test();
-    if (!isWindowValid) return;
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    IngameIME_Update_API();
 }

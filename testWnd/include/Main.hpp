@@ -15,6 +15,7 @@ struct MainContext
     bool isFullscreen = false;
 
     void setup();
+    void destroy();
     void configFullscreen();
     void toggleFullscreen();
 };
