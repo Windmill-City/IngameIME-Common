@@ -101,8 +101,10 @@ void IngameIMEImpl::drawSelectorAPI()
 {
     const char* items[] = {
         "GLFW-Default",
+#ifdef _WINDOWS_
         "TextServiceFramework",
         "Imm32",
+#endif
     };
 
     if (ImGui::BeginCombo("Choose API", items[SelectedAPI], 0))
