@@ -130,22 +130,6 @@ void Renderer::drawInputMode(IngameIME::InputMode mode)
     ImGui::End();
 }
 
-void UpdatePreEditRect()
-{
-    if (MainContext::Main.InputCtx)
-    {
-        ImVec2 PreEditPos = g->PlatformImeData.InputPos;
-        float  LineHeight = g->PlatformImeData.InputLineHeight + 5;
-
-        IngameIME::PreEditRect Rect;
-        Rect.x      = (int)PreEditPos.x;
-        Rect.y      = (int)PreEditPos.y;
-        Rect.height = (int)LineHeight;
-        Rect.width  = 1; // at least one pixel
-        MainContext::Main.InputCtx->setPreEditRect(Rect);
-    }
-}
-
 void Renderer::setup()
 {
     // Setup Dear ImGui context

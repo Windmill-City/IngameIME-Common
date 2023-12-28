@@ -20,4 +20,6 @@ struct IngameIMEImpl
     void drawSelectorAPI();
     void updateAPI();
     void installCallbacks();
+
+    void updatePreEditRect();
 };

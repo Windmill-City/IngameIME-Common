@@ -157,6 +157,22 @@ void IngameIMEImpl::updateAPI()
     }
 }
 
+void IngameIMEImpl::updatePreEditRect()
+{
+    if (MainContext::Main.InputCtx)
+    {
+        ImVec2 PreEditPos = g->PlatformImeData.InputPos;
+        float  LineHeight = g->PlatformImeData.InputLineHeight + 5;
+
+        IngameIME::PreEditRect Rect;
+        Rect.x      = (int)PreEditPos.x;
+        Rect.y      = (int)PreEditPos.y;
+        Rect.height = (int)LineHeight;
+        Rect.width  = 1; // at least one pixel
+        MainContext::Main.InputCtx->setPreEditRect(Rect);
+    }
+}
+
 void IngameIMEImpl::drawTestWindow()
 {
     ImGuiIO&         io           = ImGui::GetIO();
@@ -184,6 +200,8 @@ void IngameIMEImpl::drawTestWindow()
 
         if (MainContext::Main.InputCtx && MainContext::Main.InputCtx->getActivated() != focused)
             MainContext::Main.InputCtx->setActivated(focused);
+
+        updatePreEditRect();
 
         // Center window
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
