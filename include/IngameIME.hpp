@@ -80,6 +80,19 @@ struct CandidateListContext
 };
 
 /**
+ * @brief Bounding box of the Application drawn PreEdit text, in window coordinate
+ *
+ * @details Input method require this to place its CandidateList Window, in non-fullscreen mode
+ */
+struct PreEditRect
+{
+    int32_t x;
+    int32_t y;
+    int32_t width;
+    int32_t height;
+};
+
+/**
  * @brief Application is responsible for drawing the PreEdit
  *
  */
@@ -143,6 +156,8 @@ class InputContext
 
   public:
     virtual InputMode   getInputMode()                          = 0;
+    virtual void        setPreEditRect(const PreEditRect& rect) = 0;
+    virtual PreEditRect getPreEditRect()                        = 0;
     virtual void        setActivated(const bool activated)      = 0;
     virtual bool        getActivated() const                    = 0;
 };

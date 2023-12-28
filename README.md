@@ -66,6 +66,12 @@ inputCtx->IngameIME::InputModeCallbackHolder::setCallback(
     });
 ```
 
+### Update PreEdit Rect
+
+```c++
+MainContext::Main.InputCtx->setPreEditRect(Rect);
+```
+
 ### Activate Input Method
 
 ```c++
