@@ -1,10 +1,13 @@
 #include "IngameIMEImpl.hpp"
+#include "IngameIME.hpp"
 #include "Main.hpp"
 
 #ifdef _WINDOWS_
   #define GLFW_EXPOSE_NATIVE_WIN32
-  #include <GLFW/glfw3native.h>
+#elif __linux__
+  #define GLFW_EXPOSE_NATIVE_X11
 #endif
+#include <GLFW/glfw3native.h>
 
 IngameIMEImpl IngameIMEImpl::IME = IngameIMEImpl();
 
@@ -104,6 +107,8 @@ void IngameIMEImpl::drawSelectorAPI()
 #ifdef _WINDOWS_
         "TextServiceFramework",
         "Imm32",
+#else
+        "Fcitx",
 #endif
     };
 
@@ -148,6 +153,13 @@ void IngameIMEImpl::updateAPI()
             MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::TextServiceFramework);
             break;
         case 2: MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::Imm32); break;
+        }
+#else
+        // Enable new API
+        switch (SelectedAPI)
+        {
+        case 0: break;
+        case 1: MainContext::Main.InputCtx = IngameIME::CreateInputContextFcitx("IngameIME-Test"); break;
         }
 #endif
 

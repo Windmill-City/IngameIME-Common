@@ -142,9 +142,9 @@ class InputContext
     virtual ~InputContext() = default;
 
   public:
-    virtual InputMode   getInputMode()                          = 0;
-    virtual void        setActivated(const bool activated)      = 0;
-    virtual bool        getActivated() const                    = 0;
+    virtual InputMode getInputMode()                     = 0;
+    virtual void      setActivated(const bool activated) = 0;
+    virtual bool      getActivated() const               = 0;
 };
 
 #ifdef _WINDOWS_
@@ -154,5 +154,7 @@ enum class API
     Imm32
 };
 InputContext* CreateInputContextWin32(HWND hWnd, API api);
+#else
+InputContext* CreateInputContextFcitx(std::string program = "");
 #endif
 } // namespace IngameIME
