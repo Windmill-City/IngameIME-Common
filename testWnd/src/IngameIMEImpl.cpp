@@ -120,11 +120,15 @@ void IngameIMEImpl::drawSelectorAPI()
         }
         ImGui::EndCombo();
     }
+
+    if (ActiveAPI == 0) ImGui::BeginDisabled();
+    ImGui::Checkbox("UILess", &uiLessSelected);
+    if (ActiveAPI == 0) ImGui::EndDisabled();
 }
 
 void IngameIMEImpl::updateAPI()
 {
-    if (ActiveAPI != SelectedAPI)
+    if (ActiveAPI != SelectedAPI || uiLessActive != uiLessSelected)
     {
         // Disable old api
         if (MainContext::Main.InputCtx)
@@ -145,15 +149,20 @@ void IngameIMEImpl::updateAPI()
         {
         case 0: break;
         case 1:
-            MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::TextServiceFramework);
+            MainContext::Main.InputCtx =
+                IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::TextServiceFramework, uiLessSelected);
             break;
-        case 2: MainContext::Main.InputCtx = IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::Imm32); break;
+        case 2:
+            MainContext::Main.InputCtx =
+                IngameIME::CreateInputContextWin32(hWnd, IngameIME::API::Imm32, uiLessSelected);
+            break;
         }
 #endif
 
         // Register callbacks
         if (SelectedAPI > 0) installCallbacks();
         ActiveAPI = SelectedAPI;
+        uiLessActive = uiLessSelected;
     }
 }
 
@@ -214,6 +223,6 @@ void IngameIMEImpl::drawTestWindow()
 
     if (PreEditCtx) MainContext::Main.Render.drawPreEdit(PreEditCtx);
     if (CandidateListCtx) MainContext::Main.Render.drawCandidateList(CandidateListCtx);
-    if (PreEditCtx && glfwGetTime() - LastInputModeChanged < AutoHideDelay)
+    if (!PreEditCtx && glfwGetTime() - LastInputModeChanged < AutoHideDelay)
         MainContext::Main.Render.drawInputMode(InputMode);
 }

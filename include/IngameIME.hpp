@@ -172,6 +172,6 @@ enum class API
     TextServiceFramework,
     Imm32
 };
-InputContext* CreateInputContextWin32(HWND hWnd, API api);
+InputContext* CreateInputContextWin32(const HWND hWnd, const API api, const bool uiLess = false);
 #endif
 } // namespace IngameIME

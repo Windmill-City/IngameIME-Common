@@ -14,6 +14,8 @@ struct IngameIMEImpl
     double AutoHideDelay = 3;
     int    ActiveAPI     = 0;
     int    SelectedAPI   = 0;
+    bool   uiLessActive   = false;
+    bool   uiLessSelected = false;
 
     void drawOverlay();
     void drawTestWindow();
