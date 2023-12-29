@@ -6,6 +6,10 @@
 
 #include <functional>
 
+#if defined(_WIN32)
+  #include <Windows.h>
+#endif
+
 namespace IngameIME
 {
 
@@ -162,7 +166,7 @@ class InputContext
     virtual bool        getActivated() const                    = 0;
 };
 
-#ifdef _WINDOWS_
+#if defined(_WIN32)
 enum class API
 {
     TextServiceFramework,

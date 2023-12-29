@@ -36,15 +36,17 @@ aux_source_directory(src SRC_LIST)
 # Embed Assets Build Tools
 # ####################################
 add_executable(ResourceBuilder EXCLUDE_FROM_ALL builder/ResourceBuilder.cpp)
-target_include_directories(ResourceBuilder PRIVATE include)
+target_include_directories(ResourceBuilder PRIVATE builder/include)
 
 # Build embed assets - Rebuild manually when folder 'embed' has changed
-add_executable(bin2c builder/bin2c.c)
+add_executable(bin2c builder/bin2c.cpp)
+target_include_directories(bin2c PRIVATE builder/include)
+
 add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/indexAssets.c ${CMAKE_BINARY_DIR}/blockAssets.c
     COMMAND $<TARGET_FILE:ResourceBuilder> -e ${CMAKE_CURRENT_SOURCE_DIR}/embed -i indexAssets -b blockAssets
-    COMMAND $<TARGET_FILE:bin2c> -i indexAssets -o indexAssets.c -a _embed_indexAssets
-    COMMAND $<TARGET_FILE:bin2c> -i blockAssets -o blockAssets.c -a _embed_blockAssets
+    COMMAND $<TARGET_FILE:bin2c> -i indexAssets -o indexAssets.c -s _embed_indexAssets
+    COMMAND $<TARGET_FILE:bin2c> -i blockAssets -o blockAssets.c -s _embed_blockAssets
     DEPENDS ${CMAKE_BINARY_DIR}/indexAssets ${CMAKE_BINARY_DIR}/blockAssets
 )
 

@@ -1,7 +1,7 @@
 #include "IngameIMEImpl.hpp"
 #include "Main.hpp"
 
-#ifdef _WINDOWS_
+#if defined(_WIN32)
   #define GLFW_EXPOSE_NATIVE_WIN32
   #include <GLFW/glfw3native.h>
 #endif
@@ -101,7 +101,7 @@ void IngameIMEImpl::drawSelectorAPI()
 {
     const char* items[] = {
         "GLFW-Default",
-#ifdef _WINDOWS_
+#if defined(_WIN32)
         "TextServiceFramework",
         "Imm32",
 #endif
@@ -137,7 +137,7 @@ void IngameIMEImpl::updateAPI()
         MainContext::Main.destroy();
         MainContext::Main.setup();
 
-#ifdef _WINDOWS_
+#if defined(_WIN32)
         HWND hWnd = glfwGetWin32Window(MainContext::Main.Window);
 
         // Enable new API
@@ -161,8 +161,8 @@ void IngameIMEImpl::updatePreEditRect()
 {
     if (MainContext::Main.InputCtx)
     {
-        ImVec2 PreEditPos = g->PlatformImeData.InputPos;
-        float  LineHeight = g->PlatformImeData.InputLineHeight + 5;
+        ImVec2 PreEditPos = MainContext::Main.Render.g->PlatformImeData.InputPos;
+        float  LineHeight = MainContext::Main.Render.g->PlatformImeData.InputLineHeight + 5;
 
         IngameIME::PreEditRect Rect;
         Rect.x      = (int)PreEditPos.x;
