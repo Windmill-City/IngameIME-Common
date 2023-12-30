@@ -12,7 +12,7 @@
 
 namespace IngameIME
 {
-
+#if !defined(SWIG)
 template <typename... Args>
 class ICallbackHolder
 {
@@ -43,6 +43,7 @@ class ICallbackHolder
         if (callback) callback(args...);
     }
 };
+#endif
 
 enum class CompositionState
 {

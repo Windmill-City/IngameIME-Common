@@ -7,179 +7,85 @@
   #endif
 %}
 
+// These are the things we actually use
+#define param(num,type) $typemap(jstype,type) arg ## num
+#define unpack(num,type) arg##num
+#define lvalref(num,type) type&& arg##num
+#define forward(num,type) std::forward<type>(arg##num)
+
+// This is the mechanics
+#define FE_0(...)
+#define FE_1(action,a1) action(0,a1)
+#define FE_2(action,a1,a2) action(0,a1), action(1,a2)
+#define FE_3(action,a1,a2,a3) action(0,a1), action(1,a2), action(2,a3)
+#define FE_4(action,a1,a2,a3,a4) action(0,a1), action(1,a2), action(2,a3), action(3,a4)
+#define FE_5(action,a1,a2,a3,a4,a5) action(0,a1), action(1,a2), action(2,a3), action(3,a4), action(4,a5)
+
+#define GET_MACRO(_1,_2,_3,_4,_5,NAME,...) NAME
+%define FOR_EACH(action,...) 
+  GET_MACRO(__VA_ARGS__, FE_5, FE_4, FE_3, FE_2, FE_1, FE_0)(action,__VA_ARGS__)
+%enddef
+
 %define %std_function(Name, Ret, ...)
 
-%feature("director") A##Name;
-#if defined(SWIGJAVA)
-
-%typemap(javaclassmodifiers) A##Name "public abstract class";
-
-%javamethodmodifiers A##Name::call "protected abstract";
-%typemap(javaout) Ret A##Name::call ";" // Suppress the body of the abstract method
-
-#elif defined(SWIGCSHARP)
-
-%typemap(csmodifiers) A##Name "public abstract class";
-
-%warnfilter(844) A##Name;
-%csmethodmodifiers A##Name::call "protected abstract";
-%typemap(csout) Ret A##Name::call ";" // Suppress the body of the abstract method
-
-#elif defined(SWIGPYTHON)
-// Nothing here
-#else
-  #warning "std_function.i not implemented for target language"
-#endif
-
-%inline %{
-  struct A##Name {
-    virtual ~A##Name() {}
-    /**
-     * @brief Run the callback
-     *
-     * @return Ret
-     */
+%feature("director") Name##Impl;
+%typemap(javaclassmodifiers) Name##Impl "abstract class";
+%{
+  struct Name##Impl {
+    virtual ~Name##Impl() {}
     virtual Ret call(__VA_ARGS__) = 0;
   };
 %}
 
-#if defined(SWIGJAVA)
+%javamethodmodifiers Name##Impl::call "abstract protected";
+%typemap(javaout) Ret Name##Impl::call ";" // Suppress the body of the abstract method
 
-/**
- * @brief Should extend the director class but not the proxy class
- */
-%typemap(javaclassmodifiers) std::function<Ret(__VA_ARGS__)> "public final class";
+struct Name##Impl {
+  virtual ~Name##Impl();
+protected:
+  virtual Ret call(__VA_ARGS__) = 0;
+};
 
-/**
- * @brief Function pointer from java side maybe null
- */
-%typemap(in) std::function<Ret(__VA_ARGS__)>
-%{ if ($input) $1 = *($&1_ltype)$input; %}
-/**
- * @brief If the wrapped function pointer is null, just return null to java side
- */
-%typemap(out) std::function<Ret(__VA_ARGS__)>
-%{ *($&1_ltype*)&$result = $1 ? new $1_ltype($1) : 0; %}
-%typemap(javaout) std::function<Ret(__VA_ARGS__)> {
-  long cPtr = $jnicall;
-  return (cPtr == 0) ? null : new $typemap(jstype, std::function<Ret(__VA_ARGS__)>)(cPtr, true);
-}
+%typemap(maybereturn) SWIGTYPE "return ";
+%typemap(maybereturn) void "";
 
-%typemap(javabody) std::function<Ret(__VA_ARGS__)> %{
-  private transient long swigCPtr;
-  private transient boolean swigCMemOwn;
-
-  $javaclassname(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
+%typemap(javain) std::function<Ret(__VA_ARGS__)> "$javaclassname.getCPtr($javaclassname.makeNative($javainput))"
+%typemap(javacode) std::function<Ret(__VA_ARGS__)> %{
+  protected Name() {
+    wrapper = new Name##Impl(){
+      public $typemap(jstype, Ret) call(FOR_EACH(param, __VA_ARGS__)) {
+    $typemap(maybereturn, Ret)Name.this.call(FOR_EACH(unpack, __VA_ARGS__));
+      }
+    };
+    proxy = new $javaclassname(wrapper);
   }
 
-  static long getCPtr($javaclassname obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
+  static $javaclassname makeNative($javaclassname in) {
+    if (null == in.wrapper) return in;
+    return in.proxy;
   }
+
+  // Both of these are retained to prevent garbage collection from happening too early
+  private Name##Impl wrapper;
+  private $javaclassname proxy;
 %}
 
-#elif defined(SWIGCSHARP)
-
-/**
- * @brief Should extend the director class but not the proxy class
- */
-%typemap(csclassmodifiers) std::function<Ret(__VA_ARGS__)> "public sealed class";
-
-/**
- * @brief Function pointer from csharp side maybe null
- */
-%typemap(in) std::function<Ret(__VA_ARGS__)>
-%{ if ($input) $1 = *($&1_ltype)$input; %}
-/**
- * @brief If the wrapped function pointer is null, just return null to csharp side
- */
-%typemap(out) std::function<Ret(__VA_ARGS__)>
-%{ *($&1_ltype*)&$result = $1 ? new $1_ltype($1) : 0; %}
-%typemap(csout, excode=SWIGEXCODE) std::function<Ret(__VA_ARGS__)> {
-    global::System.IntPtr cPtr = $imcall;
-    $typemap(cstype, std::function<Ret(__VA_ARGS__)>) ret = (cPtr == global::System.IntPtr.Zero) ? null : new $typemap(cstype, std::function<Ret(__VA_ARGS__)>)(cPtr, true);$excode
-    return ret;
-}
-
-%typemap(csbody) std::function<Ret(__VA_ARGS__)> %{
-  private global::System.Runtime.InteropServices.HandleRef swigCPtr;
-  private bool swigCMemOwnBase;
-
-  $csclassname(global::System.IntPtr cPtr, bool cMemoryOwn) {
-    swigCMemOwnBase = cMemoryOwn;
-    swigCPtr = new global::System.Runtime.InteropServices.HandleRef(this, cPtr);
-  }
-
-  static global::System.Runtime.InteropServices.HandleRef getCPtr($csclassname obj) {
-    return (obj == null) ? new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero) : obj.swigCPtr;
-  }
-%}
-
-#elif defined(SWIGPYTHON)
-
-/**
- * @brief Function pointer from python side maybe None
- */
-%typemap(in) std::function<Ret(__VA_ARGS__)> (void *argp, int res = 0) {
-  int newmem = 0;
-  res = SWIG_ConvertPtrAndOwn($input, &argp, $descriptor(std::function<Ret(__VA_ARGS__)> *), %convertptr_flags, &newmem);
-  if (!SWIG_IsOK(res)) {
-    %argument_fail(res, "$type", $symname, $argnum);
-  }
-  if (argp) $1 = *(%reinterpret_cast(argp, $&ltype));
-  if (newmem & SWIG_CAST_NEW_MEMORY) delete %reinterpret_cast(argp, $&ltype);
-}
-/**
- * @brief If the wrapped function pointer is null, just return None to python side
- */
-%typemap(out) std::function<Ret(__VA_ARGS__)> {
-  std::function<Ret(__VA_ARGS__)> *funcresult = $1 ? new std::function<Ret(__VA_ARGS__)>($1) : 0;
-  %set_output(SWIG_NewPointerObj(%as_voidptr(funcresult), $descriptor(std::function<Ret(__VA_ARGS__)> *), SWIG_POINTER_OWN));
-}
-%typemap(varout) std::function<Ret(__VA_ARGS__)> {
-  std::function<Ret(__VA_ARGS__)> funcresult = $1 ? new std::function<Ret(__VA_ARGS__)>($1) : 0;
-  %set_varoutput(SWIG_NewPointerObj(%as_voidptr(funcresult), $descriptor(std::function<Ret(__VA_ARGS__)> *), SWIG_POINTER_OWN));
-}
-
-/**
- * @brief Typecheck for overloading
- */
-%typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER, noblock=1) std::function<Ret(__VA_ARGS__)> {
-  int res = SWIG_ConvertPtr($input, 0, $descriptor(std::function<Ret(__VA_ARGS__)> *), 0);
-  $1 = SWIG_CheckState(res);
-}
-
-#else
-  #warning "std_function.i not implemented for target language"
-#endif
-
-%feature("novaluewrapper") std::function<Ret(__VA_ARGS__)>;
 %rename(Name) std::function<Ret(__VA_ARGS__)>;
-
-#if defined(SWIGPYTHON)
-%rename(__call__) std::function<Ret(__VA_ARGS__)>::operator();
-#else
 %rename(call) std::function<Ret(__VA_ARGS__)>::operator();
-#endif
 
 namespace std {
-  %nodefaultctor;
   struct function<Ret(__VA_ARGS__)> {
-    // Copy constructor
-    function<Ret(__VA_ARGS__)>(const std::function<Ret(__VA_ARGS__)>&);
-
     // Call operator
     Ret operator()(__VA_ARGS__) const;
 
-    // Director
     %extend {
-      function<Ret(__VA_ARGS__)>(A##Name& in) {
-        return new std::function<Ret(__VA_ARGS__)>([&](auto&& ...param){
-          return in.call(std::forward<decltype(param)>(param)...);
-        });
-      }
+    function<Ret(__VA_ARGS__)>(Name##Impl *in) {
+      return new std::function<Ret(__VA_ARGS__)>([=](FOR_EACH(lvalref,__VA_ARGS__)){
+            return in->call(FOR_EACH(forward,__VA_ARGS__));
+      });
+    }
     }
   };
 }
+
 %enddef

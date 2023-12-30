@@ -9,12 +9,32 @@
 %}
 
 %include <stdint.i>
-%include <std_wstring.i>
-%include <std_shared_ptr.i>
-%include <std_list.i>
+%include <std_string.i>
+%include <std_function.i>
 
-%include "exception.i"
+%define %ICallbackHolder(Name, Class, ...)
+%std_function(Name, void, __VA_ARGS__);
+%warnfilter(401) Class;
+%extend Class {
+public:
+  /**
+   * @brief Set callback
+   *
+   * @param callback callback to set, nullable
+   * @return previous callback, nullable
+   */
+  std::function<void(__VA_ARGS__)> setCallback(std::function<void(__VA_ARGS__)> callback) {
+    return $self->IngameIME::Name##Holder::setCallback(callback);
+  }
+};
+%enddef
 
+%ICallbackHolder(PreEditCallback, IngameIME::InputContext, const IngameIME::CompositionState, const IngameIME::PreEditContext*);
+%ICallbackHolder(CommitCallback, IngameIME::InputContext, const std::string);
+%ICallbackHolder(CandidateListCallback, IngameIME::InputContext, const IngameIME::CandidateListState, const IngameIME::CandidateListContext*)
+%ICallbackHolder(InputModeCallback, IngameIME::InputContext, const IngameIME::InputMode)
+
+%include <exception.i>
 %exception {
   try {
     $action
@@ -27,44 +47,20 @@
   }
 }
 
-%shared_ptr(IngameIME::Locale)
-%shared_ptr(IngameIME::InputProcessor)
-%shared_ptr(IngameIME::Composition)
-%shared_ptr(IngameIME::InputContext)
+%include <std_list.i>
+%template(string_list) std::list<std::string>;
 
-namespace std {
-  %template(Strings) list<wstring>;
-  %template(InputProcessors) list<shared_ptr<IngameIME::InputProcessor>>;
-}
+%immutable IngameIME::PreEditContext::selStart;
+%immutable IngameIME::PreEditContext::selEnd;
+%immutable IngameIME::PreEditContext::content;
+%immutable IngameIME::CandidateListContext::selection;
+%immutable IngameIME::CandidateListContext::candidates;
+%nodefaultctor IngameIME::PreEditContext;
+%nodefaultctor IngameIME::CandidateListContext;
 
-%include "std_function.i"
+%typemap(jtype)  HWND "long"
+%typemap(jstype) HWND "long"
+%typemap(jni)    HWND "jlong"
+%typemap(javain) HWND "$javainput"
 
-%define %ICallbackHolder(Name, Class, ...)
-%std_function(Name, void, __VA_ARGS__);
-%warnfilter(401) Class;
-%extend Class {
-public:
-  /**
-   * @brief Set callback
-   *
-   * @param callback callback to set, nullable
-   * @return previous callback, nullable
-   * @note Extend [A Name] and call Name::ctor with [A Name] to get callback on target language side
-   */
-  std::function<void(__VA_ARGS__)> setCallback(std::function<void(__VA_ARGS__)> callback) {
-    return $self->IngameIME::Name##Holder::setCallback(callback);
-  }
-};
-%enddef
-
-%ICallbackHolder(PreEditRectCallback, IngameIME::Composition, IngameIME::PreEditRect&);
-%ICallbackHolder(PreEditCallback, IngameIME::Composition, const IngameIME::CompositionState, const IngameIME::PreEditContext*);
-%ICallbackHolder(CommitCallback, IngameIME::Composition, const std::wstring);
-%ICallbackHolder(CandidateListCallback, IngameIME::Composition, const IngameIME::CandidateListState, const IngameIME::CandidateListContext*)
-%ICallbackHolder(InputProcessorCallback, IngameIME::Global, const IngameIME::InputProcessorState, const IngameIME::InputProcessorContext&);
-
-%include "Composition.hpp"
-%include "InputContext.hpp"
-
-%include "InputProcessor.hpp"
-%include "IngameIME.hpp"
+%include "../include/IngameIME.hpp"

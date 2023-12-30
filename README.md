@@ -85,5 +85,3 @@ Use [SWIG](https://github.com/swig/swig) to generate binding files
 Currently supported bindings:
 
 - Java
-- CSharp
-- Python
