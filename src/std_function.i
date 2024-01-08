@@ -29,7 +29,7 @@
 %define %std_function(Name, Ret, ...)
 
 %feature("director") Name##Impl;
-%typemap(javaclassmodifiers) Name##Impl "abstract class";
+%typemap(javaclassmodifiers) Name##Impl "public abstract class";
 %{
   struct Name##Impl {
     virtual ~Name##Impl() {}
