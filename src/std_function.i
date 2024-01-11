@@ -49,27 +49,6 @@ protected:
 %typemap(maybereturn) SWIGTYPE "return ";
 %typemap(maybereturn) void "";
 
-%typemap(javain) std::function<Ret(__VA_ARGS__)> "$javaclassname.getCPtr($javaclassname.makeNative($javainput))"
-%typemap(javacode) std::function<Ret(__VA_ARGS__)> %{
-  protected Name() {
-    wrapper = new Name##Impl(){
-      public $typemap(jstype, Ret) call(FOR_EACH(param, __VA_ARGS__)) {
-    $typemap(maybereturn, Ret)Name.this.call(FOR_EACH(unpack, __VA_ARGS__));
-      }
-    };
-    proxy = new $javaclassname(wrapper);
-  }
-
-  static $javaclassname makeNative($javaclassname in) {
-    if (null == in.wrapper) return in;
-    return in.proxy;
-  }
-
-  // Both of these are retained to prevent garbage collection from happening too early
-  private Name##Impl wrapper;
-  private $javaclassname proxy;
-%}
-
 %rename(Name) std::function<Ret(__VA_ARGS__)>;
 %rename(call) std::function<Ret(__VA_ARGS__)>::operator();
 
