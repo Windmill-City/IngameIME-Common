@@ -62,5 +62,8 @@ public:
 %typemap(jstype) HWND "long"
 %typemap(jni)    HWND "jlong"
 %typemap(javain) HWND "$javainput"
+%typemap(in) HWND %{
+  $1 = (HWND)$input; 
+%}
 
 %include "../include/IngameIME.hpp"
