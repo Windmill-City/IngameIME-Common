@@ -65,5 +65,6 @@ public:
 %typemap(in) HWND %{
   $1 = (HWND)$input; 
 %}
+%newobject IngameIME::CreateInputContextWin32(const HWND hWnd, const API api, const bool uiLess = false);
 
 %include "../include/IngameIME.hpp"
