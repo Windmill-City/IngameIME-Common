@@ -83,14 +83,8 @@ protected:
 
 namespace std {
   struct function<Ret(__VA_ARGS__)> {
-    // Copy constructor
-    function<Ret(__VA_ARGS__)>(const std::function<Ret(__VA_ARGS__)>&);
-
     // Call operator
     Ret operator()(__VA_ARGS__) const;
-
-    // Conversion constructor from function pointer
-    function<Ret(__VA_ARGS__)>(Ret(*const)(__VA_ARGS__));
 
     %extend {
       function<Ret(__VA_ARGS__)>(Name##Impl *in) {
@@ -159,14 +153,8 @@ protected:
 
 namespace std {
   struct function<Ret()> {
-    // Copy constructor
-    function<Ret()>(const std::function<Ret()>&);
-
     // Call operator
     Ret operator()() const;
-
-    // Conversion constructor from function pointer
-    function<Ret()>(Ret(*const)());
 
     %extend {
       function<Ret()>(Name##Impl *in) {
